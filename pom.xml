@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.velocity.vultures</groupId>
+    <groupId>vv.pms</groupId>
     <artifactId>SYSC4806-G31-VELOCITY-VULTURES-PROJECT</artifactId>
     <version>MILESTONE-1</version>
     <packaging>jar</packaging>
