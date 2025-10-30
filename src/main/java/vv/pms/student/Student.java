@@ -1,7 +1,7 @@
 package vv.pms.student;
 
 import jakarta.persistence.*;
-import vv.pms.project.Program;
+import vv.pms.common.Program;
 
 @Entity
 @Table(name = "students")
@@ -20,25 +20,27 @@ public class Student {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Enumerated(EnumType.STRING) // Stores the enum name (e.g., "SOFTWARE_ENGINEERING") as a string
+    @Enumerated(EnumType.STRING) // Stores the enum name (e.g., "SOFTWARE_ENGINEERING")
     @Column(nullable = false)
     private Program program;
 
-    // Field to easily track if a student has an accepted project
+    // Tracks if a student is officially assigned to a project (used by the Allocation module)
     private boolean hasProject = false;
 
-    // --- Relationships ---
-
-    // One-to-One relationship with the User entity for login (not shown, but assumed)
-    // @OneToOne
-    // @JoinColumn(name = "user_id")
-    // private User user;
-
-    // --- Constructors ---
-
+    /**
+     * Default constructor for JPA
+     */
     public Student() {
     }
 
+    /**
+     * Parameterized constructor
+     * 
+     * @param name The name of the student
+     * @param studentId The student ID
+     * @param email The email address
+     * @param program The program the student is enrolled in
+     */
     public Student(String name, String studentId, String email, Program program) {
         this.name = name;
         this.studentId = studentId;
@@ -46,8 +48,6 @@ public class Student {
         this.program = program;
         this.hasProject = false;
     }
-
-    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -93,7 +93,30 @@ public class Student {
         return hasProject;
     }
 
+    // This setter is used by the StudentService based on actions in the Allocation module
     public void setHasProject(boolean hasProject) {
         this.hasProject = hasProject;
+    }
+
+    /**
+     * Encapsulates the state change for the email address.
+     */
+    public void updateEmail(String newEmail) {
+        if (newEmail == null || newEmail.isBlank()) {
+            throw new IllegalArgumentException("Email cannot be empty.");
+        }
+        this.email = newEmail;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", studentId='" + studentId + '\'' +
+                ", email='" + email + '\'' +
+                ", program=" + program +
+                ", hasProject=" + hasProject +
+                '}';
     }
 }

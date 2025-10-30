@@ -13,12 +13,18 @@ public class ProfessorService {
 
     private final ProfessorRepository repository;
 
+    /**
+     * Constructor for ProfessorService
+     */
     public ProfessorService(ProfessorRepository repository) {
         this.repository = repository;
     }
 
     /**
-     * CREATE: Adds a new professor to the system.
+     * Adds a new professor to the system.
+     * @param name  The name of the professor
+     * @param email The email of the professor
+     * @return The created Professor entity
      */
     public Professor addProfessor(String name, String email) {
         if (repository.findByEmail(email).isPresent()) {
@@ -29,8 +35,10 @@ public class ProfessorService {
     }
 
     /**
-     * READ: Retrieves a professor by their ID.
+     * Retrieves a professor by their ID.
      * This is crucial for cross-module communication (e.g., by the Allocation module).
+     * @param id The ID of the professor
+     * @return An Optional containing the Professor if found, or empty if not found
      */
     @Transactional(readOnly = true)
     public Optional<Professor> findProfessorById(Long id) {
@@ -38,7 +46,8 @@ public class ProfessorService {
     }
 
     /**
-     * READ: Retrieves all professors.
+     * Retrieves all professors.
+     * @return A list of all Professor entities
      */
     @Transactional(readOnly = true)
     public List<Professor> findAllProfessors() {
@@ -46,8 +55,11 @@ public class ProfessorService {
     }
 
     /**
-     * DELETE: Removes a professor by ID.
-     * NOTE: Real-world systems require complex checks before deletion (e.g., are they assigned to any projects?).
+     * Removes a professor by ID.
+     * TODO: Consider cascading effects required when deleting a professor
+     * 
+     * @param id The ID of the professor to remove
+     * @throws ProfessorNotFoundException if the professor with the given ID does not exist
      */
     public void deleteProfessor(Long id) {
         if (!repository.existsById(id)) {
