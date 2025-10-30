@@ -1,4 +1,4 @@
-package org.velocity.vultures;
+package vv.pms.project;
 
 public enum Program {
     COMPUTER_SYSTEMS_ENGINEERING,
