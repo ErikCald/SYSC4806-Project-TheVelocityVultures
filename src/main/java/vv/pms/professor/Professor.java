@@ -1,4 +1,4 @@
-package vv.pms;
+package vv.pms.professor;
 
 import jakarta.persistence.*;
 

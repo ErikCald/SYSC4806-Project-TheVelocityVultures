@@ -1,6 +1,7 @@
-package vv.pms;
+package vv.pms.student;
 
 import jakarta.persistence.*;
+import vv.pms.project.Program;
 
 @Entity
 @Table(name = "students")

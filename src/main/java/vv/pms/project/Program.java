@@ -1,4 +1,4 @@
-package vv.pms;
+package vv.pms.project;
 
 public enum Program {
     COMPUTER_SYSTEMS_ENGINEERING,
