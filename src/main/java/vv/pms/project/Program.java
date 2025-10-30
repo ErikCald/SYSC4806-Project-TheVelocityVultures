@@ -1,8 +1,5 @@
-package vv.pms.common;
+package vv.pms.project;
 
-/**
- * Enumeration representing various academic programs.
- */
 public enum Program {
     COMPUTER_SYSTEMS_ENGINEERING,
     SOFTWARE_ENGINEERING,

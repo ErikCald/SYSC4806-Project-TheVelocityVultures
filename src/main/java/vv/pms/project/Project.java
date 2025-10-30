@@ -1,8 +1,6 @@
 package vv.pms.project;
 
 import jakarta.persistence.*;
-import vv.pms.common.Program;
-
 import java.util.Set;
 
 @Entity
@@ -31,18 +29,10 @@ public class Project {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProjectStatus status = ProjectStatus.OPEN;
+    private ProjectStatus status = ProjectStatus.OPEN; // OPEN, FULL, ARCHIVED
 
     public Project() {}
 
-    /***
-     * Parameterized constructor
-     *
-     * @param title The title of the project
-     * @param description The description of the project
-     * @param programRestrictions The program restrictions for the project
-     * @param requiredStudents The number of students required for the project
-     */
     public Project(String title, String description, Set<Program> programRestrictions, int requiredStudents) {
         this.title = title;
         this.description = description;
@@ -50,6 +40,7 @@ public class Project {
         this.requiredStudents = requiredStudents;
     }
 
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }

@@ -20,41 +20,32 @@ public class ProjectAllocation {
     @Column(nullable = false)
     private Long professorId;
 
-    // TODO: For future milestones: Tracks assigned students using IDs
+    // For future milestones: Tracks assigned students using IDs
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "allocation_assigned_students", joinColumns = @JoinColumn(name = "allocation_id"))
     private Set<Long> assignedStudentIds = new HashSet<>();
 
-    // TODO: For future milestones: Tracks the current count for quick checks
+    // For future milestones: Tracks the current count for quick checks
     @Column(nullable = false)
     private int currentStudentCount = 0;
 
-    /**
-     * Default constructor for JPA
-     */
+    // --- Constructors ---
     public ProjectAllocation() {}
 
-    /**
-     * Parameterized constructor
-     * 
-     * @param projectId The ID of the project
-     * @param professorId The ID of the professor
-     */
+    // Constructor for the initial Professor-Project mapping
     public ProjectAllocation(Long projectId, Long professorId) {
         this.projectId = projectId;
         this.professorId = professorId;
     }
 
-    /**
-     * Assigns a student to this project allocation.
-     * Validation logic for fullness/duplicates goes in the AllocationService.
-     */
+    // --- Business Logic focused on relationships (for future milestones) ---
     public void assignStudent(Long studentId) {
         // Validation logic for fullness/duplicates goes in the AllocationService
         this.assignedStudentIds.add(studentId);
         this.currentStudentCount = this.assignedStudentIds.size();
     }
 
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }

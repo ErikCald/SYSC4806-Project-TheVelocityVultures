@@ -16,17 +16,9 @@ public class Professor {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /**
-     * Default constructor for JPA
-     */
     public Professor() {
     }
 
-    /**
-     * Parameterized constructor
-     * @param name The name of the professor
-     * @param email The email of the professor
-     */
     public Professor(String name, String email) {
         this.name = name;
         this.email = email;

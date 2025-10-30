@@ -2,7 +2,6 @@ package vv.pms.project;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vv.pms.common.Program;
 import vv.pms.project.internal.ProjectRepository;
 import java.util.List;
 import java.util.Optional;
@@ -14,23 +13,12 @@ public class ProjectService {
 
     private final ProjectRepository repository;
 
-    /**
-     * Constructor for ProjectService
-     * 
-     * @param repository The ProjectRepository instance (injected)
-     */
     public ProjectService(ProjectRepository repository) {
         this.repository = repository;
     }
 
     /**
      * Creates and saves a new project.
-     * 
-     * @param title            The title of the project
-     * @param description      The description of the project
-     * @param restrictions     The program restrictions for the project
-     * @param requiredStudents The number of students required for the project
-     * @return The created Project entity
      */
     public Project addProject(String title, String description, Set<Program> restrictions, int requiredStudents) {
         Project newProject = new Project(title, description, restrictions, requiredStudents);
@@ -48,7 +36,7 @@ public class ProjectService {
 
     /**
      * Deletes a project by ID.
-     * TODO: Consider cascading effects required when deleting a project
+     * NOTE: In a real system, the Allocation module should be checked before deletion.
      */
     public void deleteProject(Long id) {
         repository.deleteById(id);
@@ -56,8 +44,6 @@ public class ProjectService {
 
     /**
      * Archives a project, changing its status.
-     * 
-     * @param id The ID of the project to archive
      */
     public void archiveProject(Long id) {
         Project project = repository.findById(id)
@@ -66,11 +52,6 @@ public class ProjectService {
         repository.save(project);
     }
 
-    /**
-     * Retrieves all projects.
-     * 
-     * @return A list of all projects
-     */
     @Transactional(readOnly = true)
     public List<Project> findAllProjects() {
         return repository.findAll();
