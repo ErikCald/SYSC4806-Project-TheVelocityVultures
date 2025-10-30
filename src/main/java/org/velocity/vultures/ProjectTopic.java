@@ -1,9 +1,8 @@
-package org.example;
+package org.velocity.vultures;
 
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity

@@ -1,4 +1,4 @@
-package org.example;
+package org.velocity.vultures;
 
 import jakarta.persistence.*;
 

@@ -1,4 +1,4 @@
-package org.example;
+package org.velocity.vultures;
 
 public enum ProjectStatus {
     OPEN,      // Available for applications

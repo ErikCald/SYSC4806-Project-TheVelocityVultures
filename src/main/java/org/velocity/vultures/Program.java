@@ -1,4 +1,4 @@
-package org.example;
+package org.velocity.vultures;
 
 public enum Program {
     COMPUTER_SYSTEMS_ENGINEERING,
