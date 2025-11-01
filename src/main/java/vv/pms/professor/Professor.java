@@ -1,23 +1,29 @@
 package vv.pms.professor;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "professors")
+@Table(name = "professors", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_professor_email", columnNames = "email")
+})
 public class Professor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false)
     private String name;
 
+    @Email
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String email;
 
-    public Professor() {
-    }
+    public Professor() {}
 
     public Professor(String name, String email) {
         this.name = name;
