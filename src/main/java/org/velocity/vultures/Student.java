@@ -1,42 +1,47 @@
 package org.velocity.vultures;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "students")
+@Table(name = "students", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_student_student_id", columnNames = "studentId"),
+        @UniqueConstraint(name = "uk_student_email", columnNames = "email")
+})
 public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false)
     private String name;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
-    private String studentId; // e.g., University ID number
+    private String studentId; // University ID
 
+    @Email
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Enumerated(EnumType.STRING) // Stores the enum name (e.g., "SOFTWARE_ENGINEERING") as a string
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Program program;
 
-    // Field to easily track if a student has an accepted project
+    @Column(nullable = false)
     private boolean hasProject = false;
 
-    // --- Relationships ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_topic_id")
+    private ProjectTopic projectTopic;
 
-    // One-to-One relationship with the User entity for login (not shown, but assumed)
-    // @OneToOne
-    // @JoinColumn(name = "user_id")
-    // private User user;
-
-    // --- Constructors ---
-
-    public Student() {
-    }
+    public Student() {}
 
     public Student(String name, String studentId, String email, Program program) {
         this.name = name;
@@ -46,53 +51,43 @@ public class Student {
         this.hasProject = false;
     }
 
-    // --- Getters and Setters ---
-
-    public Long getId() {
-        return id;
+    public Long getId() { return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getName() { return name;
     }
 
-    public String getName() {
-        return name;
+    public void setName(String name) { this.name = name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getStudentId() { return studentId;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public void setStudentId(String studentId) { this.studentId = studentId;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public String getEmail() { return email;
     }
 
-    public String getEmail() {
-        return email;
+    public void setEmail(String email) { this.email = email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public Program getProgram() { return program;
     }
 
-    public Program getProgram() {
-        return program;
+    public void setProgram(Program program) { this.program = program;
     }
 
-    public void setProgram(Program program) {
-        this.program = program;
+    public boolean isHasProject() { return hasProject;
     }
 
-    public boolean isHasProject() {
-        return hasProject;
+    public void setHasProject(boolean hasProject) { this.hasProject = hasProject; }
+
+
+    public ProjectTopic getProjectTopic() { return projectTopic;
     }
 
-    public void setHasProject(boolean hasProject) {
-        this.hasProject = hasProject;
+    public void setProjectTopic(ProjectTopic projectTopic) { this.projectTopic = projectTopic;
     }
+
 }
