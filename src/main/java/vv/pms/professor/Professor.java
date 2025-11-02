@@ -1,4 +1,4 @@
-package org.velocity.vultures;
+package vv.pms.professor;
 
 import jakarta.persistence.*;
 
