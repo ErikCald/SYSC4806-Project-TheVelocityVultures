@@ -18,7 +18,7 @@ public class ProfessorService {
     }
 
     /**
-     * CREATE: Adds a new professor to the system.
+     * Adds a new professor to the system.
      */
     public Professor addProfessor(String name, String email) {
         if (repository.findByEmail(email).isPresent()) {
@@ -29,7 +29,7 @@ public class ProfessorService {
     }
 
     /**
-     * READ: Retrieves a professor by their ID.
+     * Retrieves a professor by their ID.
      * This is crucial for cross-module communication (e.g., by the Allocation module).
      */
     @Transactional(readOnly = true)
@@ -38,7 +38,7 @@ public class ProfessorService {
     }
 
     /**
-     * READ: Retrieves all professors.
+     * Retrieves all professors.
      */
     @Transactional(readOnly = true)
     public List<Professor> findAllProfessors() {
@@ -46,8 +46,8 @@ public class ProfessorService {
     }
 
     /**
-     * DELETE: Removes a professor by ID.
-     * NOTE: Real-world systems require complex checks before deletion (e.g., are they assigned to any projects?).
+     * Deletes a professor by ID.
+     * TODO: Checks before deletion? (are they assigned to any projects?)
      */
     public void deleteProfessor(Long id) {
         if (!repository.existsById(id)) {

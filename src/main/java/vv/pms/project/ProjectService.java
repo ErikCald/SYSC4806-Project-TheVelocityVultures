@@ -36,7 +36,6 @@ public class ProjectService {
 
     /**
      * Deletes a project by ID.
-     * NOTE: In a real system, the Allocation module should be checked before deletion.
      */
     public void deleteProject(Long id) {
         repository.deleteById(id);
