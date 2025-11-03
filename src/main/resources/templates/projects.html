@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Management</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .form-container { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background-color: #fff; }
+        .error { color: red; font-size: 0.9em; }
+        .button { padding: 8px 12px; margin-right: 5px; cursor: pointer; }
+        .inline-form { display:inline; margin-left:6px; }
+    </style>
+    <script>
+        function showForm() {
+            document.getElementById('form-container').style.display = 'block';
+            // scroll into view
+            document.getElementById('form-container').scrollIntoView({behavior: 'smooth'});
+        }
+        function hideForm() {
+            document.getElementById('form-container').style.display = 'none';
+        }
+    </script>
+</head>
+<body>
+<div style="max-width: 900px; margin: auto;">
+    <header>
+        <h1>Project Directory</h1>
+        <p>Manage project topics and details.</p>
+        <a href="#" onclick="showForm(); return false;"
+           class="button" style="background-color: green; color: white;">Add Project</a>
+    </header>
+
+    <!-- Form (always bound to projectForm) -->
+    <div id="form-container" class="form-container" style="display:none;">
+        <h3 th:text="${projectForm.id == null} ? 'Add New Project' : 'Edit Project'">Add New Project</h3>
+
+        <form th:action="@{/projects}" th:object="${projectForm}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div>
+                <label for="title">Title:</label>
+                <input id="title" type="text" th:field="*{title}" required style="width:100%; padding:5px;">
+                <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error"></p>
+            </div>
+
+            <div>
+                <label for="description">Description:</label>
+                <textarea id="description" th:field="*{description}" required style="width:100%; padding:5px;"></textarea>
+                <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error"></p>
+            </div>
+
+            <div>
+                <label for="requiredStudents">Max Students:</label>
+                <input id="requiredStudents" type="number" th:field="*{requiredStudents}" min="1" required style="width:100%; padding:5px;">
+                <p th:if="${#fields.hasErrors('requiredStudents')}" th:errors="*{requiredStudents}" class="error"></p>
+            </div>
+
+            <div>
+                <label for="programRestrictions">Allowed Programs:</label>
+                <select id="programRestrictions" th:field="*{programRestrictions}" multiple style="width:100%; padding:5px;">
+                    <option th:each="prog : ${programs}" th:value="${prog}" th:text="${prog}">PROGRAM</option>
+                </select>
+            </div>
+
+            <div style="text-align: right; margin-top: 15px;">
+                <a href="#" onclick="hideForm(); return false;" class="button" style="background-color:#eee;">Cancel</a>
+                <button type="submit" class="button" style="background-color:blue; color:white;"
+                        th:text="${projectForm.id == null} ? 'Save Project' : 'Update Project'">Save Project</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Projects Table -->
+    <div>
+        <h2>Projects List</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Max Students</th>
+                <th>Programs Allowed</th>
+                <th>Status</th>
+                <th style="text-align:center;">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="project : ${projects}">
+                <td th:text="${project.id}">1</td>
+                <td th:text="${project.title}">Title</td>
+                <td th:text="${project.description}">Desc</td>
+                <td th:text="${project.requiredStudents}">5</td>
+                <td>
+                    <span th:each="prog : ${project.programRestrictions}" th:text="${prog} + ' '"></span>
+                </td>
+                <td th:text="${project.status}">OPEN</td>
+                <td style="text-align:center;">
+                    <a th:href="@{/projects/edit/{id}(id=${project.id})}" style="color:blue;">Edit</a>
+
+                    <form th:action="@{/projects/delete}" method="post" class="inline-form">
+                        <input type="hidden" name="id" th:value="${project.id}" />
+                        <button type="submit" style="color:red; background:none; border:none; cursor:pointer;">Delete</button>
+                    </form>
+
+                    <form th:action="@{/projects/archive}" method="post" class="inline-form">
+                        <input type="hidden" name="id" th:value="${project.id}" />
+                        <button type="submit" style="color:orange; background:none; border:none; cursor:pointer;">Archive</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${projects.isEmpty()}" style="text-align:center; color:#777; margin-top:20px;">No projects found.</p>
+    </div>
+</div>
+</body>
+</html>
+
