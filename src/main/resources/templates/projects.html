@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Projects</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<div class="container mt-4">
+    <h1>Project Management</h1>
+
+    <!-- Add Project button -->
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal" data-project-id="">
+        Add Project
+    </button>
+
+    <!-- Projects Table -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Programs</th>
+            <th>Max Students</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="project : ${projects}">
+            <td th:text="${project.title}"></td>
+            <td th:text="${project.description}"></td>
+            <td th:text="${#strings.arrayJoin(project.programRestrictions.toArray(), ', ')}"></td>
+            <td th:text="${project.requiredStudents}"></td>
+            <td th:text="${project.status}"></td>
+            <td>
+                <!-- Edit button -->
+                <button type="button" class="btn btn-warning btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#projectModal"
+                        th:attr="data-project-id=${project.id}"
+                        th:data-title="${project.title}"
+                        th:data-description="${project.description}"
+                        th:data-programs="${#strings.arrayJoin(project.programRestrictions.toArray(), ',')}"
+                        th:data-requiredstudents="${project.requiredStudents}">
+                    Edit
+                </button>
+
+                <!-- Delete -->
+                <form th:action="@{/projects/delete}" method="post" class="d-inline">
+                    <input type="hidden" name="id" th:value="${project.id}"/>
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+
+                <!-- Archive -->
+                <form th:action="@{/projects/archive}" method="post" class="d-inline">
+                    <input type="hidden" name="id" th:value="${project.id}"/>
+                    <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Add/Edit Project Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/projects}" th:object="${projectForm}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Project Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" th:field="*{id}"/>
+
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" th:field="*{title}" class="form-control"/>
+                        <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea th:field="*{description}" class="form-control"></textarea>
+                        <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Program Restrictions</label>
+                        <select th:field="*{programRestrictions}" multiple class="form-select">
+                            <option th:each="prog : ${programs}" th:value="${prog}" th:text="${prog}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Required Students</label>
+                        <input type="number" th:field="*{requiredStudents}" class="form-control"/>
+                        <div class="text-danger" th:if="${#fields.hasErrors('requiredStudents')}" th:errors="*{requiredStudents}"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script to populate modal for Edit -->
+<script>
+    const projectModal = document.getElementById('projectModal');
+    projectModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const form = projectModal.querySelector('form');
+
+        // Check if it's Edit (has data-project-id) or Add (empty)
+        const projectId = button.getAttribute('data-project-id');
+        if(projectId){
+            projectModal.querySelector('.modal-title').innerText = 'Edit Project';
+            form.querySelector('input[name="id"]').value = projectId;
+            form.querySelector('input[name="title"]').value = button.getAttribute('data-title');
+            form.querySelector('textarea[name="description"]').value = button.getAttribute('data-description');
+
+            const programs = button.getAttribute('data-programs').split(',');
+            const select = form.querySelector('select[name="programRestrictions"]');
+            for (let option of select.options) {
+                option.selected = programs.includes(option.value);
+            }
+
+            form.querySelector('input[name="requiredStudents"]').value = button.getAttribute('data-requiredstudents');
+        } else {
+            // Add Project: clear form
+            projectModal.querySelector('.modal-title').innerText = 'Add Project';
+            form.reset();
+            form.querySelector('input[name="id"]').value = '';
+        }
+    });
+</script>
+
+</body>
+</html>
