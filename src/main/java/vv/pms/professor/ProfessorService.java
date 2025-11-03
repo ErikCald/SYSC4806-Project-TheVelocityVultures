@@ -30,7 +30,6 @@ public class ProfessorService {
 
     /**
      * Retrieves a professor by their ID.
-     * This is crucial for cross-module communication (e.g., by the Allocation module).
      */
     @Transactional(readOnly = true)
     public Optional<Professor> findProfessorById(Long id) {
@@ -55,10 +54,30 @@ public class ProfessorService {
         }
         repository.deleteById(id);
     }
+
+    public void modifyProfessor(Long id, String name, String email) {
+        Professor professor = repository.findById(id)
+                .orElseThrow(() -> new ProfessorNotFoundException("Professor with ID " + id + " not found."));
+
+        // Check for email uniqueness if it's being changed
+        if (!professor.getEmail().equals(email) && repository.findByEmail(email).isPresent()) {
+            throw new ProfessorAlreadyExistsException("Professor with email " + email + " already exists.");
+        }
+
+        professor.setName(name);
+        professor.setEmail(email);
+        repository.save(professor);
+    }
 }
 
 class ProfessorNotFoundException extends RuntimeException {
     public ProfessorNotFoundException(String message) {
+        super(message);
+    }
+}
+
+class ProfessorAlreadyExistsException extends RuntimeException {
+    public ProfessorAlreadyExistsException(String message) {
         super(message);
     }
 }
