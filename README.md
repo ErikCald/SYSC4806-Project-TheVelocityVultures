@@ -35,6 +35,7 @@ A web-based system designed to manage 4th-year project topics, student applicati
 
 ### Module Diagram
 <img width="354" height="549" alt="SYSC4806-Project-Milestone1-ModuleDiagram" src="https://github.com/user-attachments/assets/69188335-c7be-49d0-ad75-c7ffe08b9e76" />
+<img width="623" height="900" alt="Image" src="https://github.com/user-attachments/assets/f003f8ee-1fdd-418d-a851-259befe7c773" />
 
 ## Technology Stack
 - **Backend:** Java  
