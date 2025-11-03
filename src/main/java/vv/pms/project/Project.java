@@ -40,6 +40,14 @@ public class Project {
         this.requiredStudents = requiredStudents;
     }
 
+    public Project(Long id, String title, String description, Set<Program> programs, int requiredStudents) {
+        this.id = id;
+        this.title = title;
+        this.description =description;
+        this.programRestrictions = programs;
+        this.requiredStudents = requiredStudents;
+    }
+
     // --- Getters and Setters ---
     public Long getId() {
         return id;
@@ -87,5 +95,9 @@ public class Project {
 
     public boolean isProgramAllowed(Program studentProgram) {
         return this.programRestrictions.contains(studentProgram);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
