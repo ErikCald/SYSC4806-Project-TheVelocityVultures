@@ -5,7 +5,7 @@
     <title>Projects</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap JS Bundle -->
+    <!-- Optional Bootstrap JS Bundle for modals -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -13,9 +13,8 @@
     <h1>Project Management</h1>
 
     <!-- Add Project button -->
-    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal" data-project-id="">
-        Add Project
-    </button>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal"
+            onclick="openAddProjectModal()">Add Project</button>
 
     <!-- Projects Table -->
     <table class="table table-striped">
@@ -37,14 +36,16 @@
             <td th:text="${project.requiredStudents}"></td>
             <td th:text="${project.status}"></td>
             <td>
-                <!-- Edit button -->
-                <button type="button" class="btn btn-warning btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#projectModal"
-                        th:attr="data-project-id=${project.id}"
-                        th:data-title="${project.title}"
-                        th:data-description="${project.description}"
-                        th:data-programs="${#strings.arrayJoin(project.programRestrictions.toArray(), ',')}"
-                        th:data-requiredstudents="${project.requiredStudents}">
+                <!-- Edit Button -->
+                <button class="btn btn-warning btn-sm edit-project-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#projectModal"
+                        th:attr="
+                            data-project-id=${project.id},
+                            data-project-title=${project.title},
+                            data-project-description=${project.description},
+                            data-project-programs=${#strings.arrayJoin(project.programRestrictions.toArray(), '|')},
+                            data-project-requiredStudents=${project.requiredStudents}">
                     Edit
                 </button>
 
@@ -71,34 +72,35 @@
         <div class="modal-content">
             <form th:action="@{/projects}" th:object="${projectForm}" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title">Project Form</h5>
+                    <h5 class="modal-title" id="projectModalTitle">Project Form</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" th:field="*{id}"/>
+                    <input type="hidden" th:field="*{id}" id="projectId"/>
 
                     <div class="mb-3">
                         <label class="form-label">Title</label>
-                        <input type="text" th:field="*{title}" class="form-control"/>
+                        <input type="text" th:field="*{title}" class="form-control" id="projectTitle"/>
                         <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea th:field="*{description}" class="form-control"></textarea>
+                        <textarea th:field="*{description}" class="form-control" id="projectDescription"></textarea>
                         <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Program Restrictions</label>
-                        <select th:field="*{programRestrictions}" multiple class="form-select">
-                            <option th:each="prog : ${programs}" th:value="${prog}" th:text="${prog}"></option>
-                        </select>
+                        <div id="programCheckboxes" class="form-check" th:each="prog : ${programs}">
+                            <input class="form-check-input program-checkbox" type="checkbox" th:value="${prog}" th:id="'prog-' + ${prog}" th:name="programRestrictions"/>
+                            <label class="form-check-label" th:for="'prog-' + ${prog}" th:text="${prog}"></label>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Required Students</label>
-                        <input type="number" th:field="*{requiredStudents}" class="form-control"/>
+                        <input type="number" th:field="*{requiredStudents}" class="form-control" id="projectRequiredStudents"/>
                         <div class="text-danger" th:if="${#fields.hasErrors('requiredStudents')}" th:errors="*{requiredStudents}"></div>
                     </div>
                 </div>
@@ -111,36 +113,33 @@
     </div>
 </div>
 
-<!-- Script to populate modal for Edit -->
 <script>
-    const projectModal = document.getElementById('projectModal');
-    projectModal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget; // Button that triggered the modal
-        const form = projectModal.querySelector('form');
+    function openAddProjectModal() {
+        // Clear modal fields for adding a new project
+        document.getElementById('projectModalTitle').innerText = 'Add Project';
+        document.getElementById('projectId').value = '';
+        document.getElementById('projectTitle').value = '';
+        document.getElementById('projectDescription').value = '';
+        document.getElementById('projectRequiredStudents').value = '';
+        document.querySelectorAll('.program-checkbox').forEach(cb => cb.checked = false);
+    }
 
-        // Check if it's Edit (has data-project-id) or Add (empty)
-        const projectId = button.getAttribute('data-project-id');
-        if(projectId){
-            projectModal.querySelector('.modal-title').innerText = 'Edit Project';
-            form.querySelector('input[name="id"]').value = projectId;
-            form.querySelector('input[name="title"]').value = button.getAttribute('data-title');
-            form.querySelector('textarea[name="description"]').value = button.getAttribute('data-description');
+    // Edit project modal population
+    document.querySelectorAll('.edit-project-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.getElementById('projectModalTitle').innerText = 'Edit Project';
+            document.getElementById('projectId').value = btn.getAttribute('data-project-id');
+            document.getElementById('projectTitle').value = btn.getAttribute('data-project-title');
+            document.getElementById('projectDescription').value = btn.getAttribute('data-project-description');
+            document.getElementById('projectRequiredStudents').value = btn.getAttribute('data-project-requiredStudents');
 
-            const programs = button.getAttribute('data-programs').split(',');
-            const select = form.querySelector('select[name="programRestrictions"]');
-            for (let option of select.options) {
-                option.selected = programs.includes(option.value);
-            }
-
-            form.querySelector('input[name="requiredStudents"]').value = button.getAttribute('data-requiredstudents');
-        } else {
-            // Add Project: clear form
-            projectModal.querySelector('.modal-title').innerText = 'Add Project';
-            form.reset();
-            form.querySelector('input[name="id"]').value = '';
-        }
+            // Set program checkboxes
+            const selectedPrograms = btn.getAttribute('data-project-programs').split('|');
+            document.querySelectorAll('.program-checkbox').forEach(cb => {
+                cb.checked = selectedPrograms.includes(cb.value);
+            });
+        });
     });
 </script>
-
 </body>
 </html>
