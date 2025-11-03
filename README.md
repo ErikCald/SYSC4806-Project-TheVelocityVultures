@@ -33,6 +33,9 @@ A web-based system designed to manage 4th-year project topics, student applicati
 - Web interface built with HTML and styled using CSS for an intuitive user experience.  
 - Java backend handling business logic and data management.  
 
+### Module Diagram
+<img width="354" height="549" alt="SYSC4806-Project-Milestone1-ModuleDiagram" src="https://github.com/user-attachments/assets/69188335-c7be-49d0-ad75-c7ffe08b9e76" />
+
 ## Technology Stack
 - **Backend:** Java  
 - **Frontend:** HTML, CSS  
