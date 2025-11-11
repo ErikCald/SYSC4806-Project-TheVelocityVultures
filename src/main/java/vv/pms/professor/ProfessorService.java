@@ -29,6 +29,14 @@ public class ProfessorService {
     }
 
     /**
+     * Find a professor by email. Public API used by other modules (e.g., auth).
+     */
+    @Transactional(readOnly = true)
+    public Optional<Professor> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    /**
      * Retrieves a professor by their ID.
      */
     @Transactional(readOnly = true)
