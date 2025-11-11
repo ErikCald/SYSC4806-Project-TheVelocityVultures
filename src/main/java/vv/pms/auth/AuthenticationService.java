@@ -19,17 +19,12 @@ public class AuthenticationService {
 
     /**
      * MVP authentication by email only. Returns an auth-local LoginRecord when an account with the email exists.
-     * Role is "PROFESSOR" or "STUDENT". A special hard-coded email can act as coordinator for demos.
+     * Role is "PROFESSOR" or "STUDENT".
      */
     public Optional<LoginRecord> authenticateByEmail(String email) {
         if (email == null || email.isBlank()) return Optional.empty();
 
         String cleaned = email.trim();
-
-        // coordinator demo email - adjust if you want a different address
-        if ("coordinator@uni.edu".equalsIgnoreCase(cleaned)) {
-            return Optional.of(new LoginRecord(null, "Coordinator", cleaned, "COORDINATOR"));
-        }
 
         return professorService.findByEmail(cleaned)
                 .map(p -> new LoginRecord(p.getId(), p.getName(), p.getEmail(), "PROFESSOR"))
