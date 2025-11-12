@@ -97,30 +97,34 @@ public class AuthController {
                           BindingResult bindingResult,
                           HttpServletRequest request,
                           Model model) {
-        if (bindingResult.hasErrors()) {
+        try {
+            if (bindingResult.hasErrors()) {
+                return "login";
+            }
+            var opt = authenticationService.authenticateByEmail(form.getEmail());
+            if (opt.isPresent()) {
+                LoginRecord user = opt.get();
+                HttpSession session = request.getSession(true);
+                session.setAttribute("currentUserId", user.id());
+                session.setAttribute("currentUserName", user.name());
+                session.setAttribute("currentUserEmail", user.email());
+                session.setAttribute("currentUserRole", user.role());
+                return "redirect:/home";
+            }
+            model.addAttribute("loginError", "No account found for that email.");
+            return "login";
+        } catch (Exception e) {
+            model.addAttribute("loginError", "An unexpected error occurred. Please try again.");
             return "login";
         }
-
-        var opt = authenticationService.authenticateByEmail(form.getEmail());
-        if (opt.isPresent()) {
-            LoginRecord user = opt.get();
-            HttpSession session = request.getSession(true);
-            session.setAttribute("currentUserId", user.id());
-            session.setAttribute("currentUserName", user.name());
-            session.setAttribute("currentUserEmail", user.email());
-            session.setAttribute("currentUserRole", user.role());
-
-            return "redirect:/home";
-        }
-
-        model.addAttribute("loginError", "No account found for that email.");
-        return "login";
     }
 
     @GetMapping("/auth/logout")
     public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null) session.invalidate();
-        return "redirect:/home";
+        if (session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login";
     }
 }

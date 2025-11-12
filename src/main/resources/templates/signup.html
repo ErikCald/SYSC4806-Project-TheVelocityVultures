@@ -14,28 +14,28 @@
 
         <form th:action="@{/auth/signup}" th:object="${signupForm}" method="post">
             <div style="margin-bottom:10px;">
-                <label>Name</label>
-                <input type="text" th:field="*{name}" required style="width:100%;padding:8px;" />
+                <label for="name">Name</label>
+                <input type="text" th:field="*{name}" id="name" required style="width:100%;padding:8px;" />
             </div>
             <div style="margin-bottom:10px;">
-                <label>Email</label>
-                <input type="email" th:field="*{email}" required style="width:100%;padding:8px;" />
+                <label for="email">Email</label>
+                <input type="email" id="email" th:field="*{email}" required style="width:100%;padding:8px;" />
             </div>
 
             <div style="margin-bottom:10px;">
                 <label>Role</label><br/>
-                <label><input type="radio" th:field="*{role}" value="STUDENT" checked/> Student</label>
+                <label><input type="radio" th:field="*{role}" value="STUDENT"/> Student</label>
                 <label style="margin-left:15px;"><input type="radio" th:field="*{role}" value="PROFESSOR"/> Professor</label>
             </div>
 
             <div id="student-fields" style="margin-bottom:10px;">
                 <div style="margin-bottom:10px;">
-                    <label>Student ID</label>
-                    <input type="text" th:field="*{studentId}" style="width:100%;padding:8px;" />
+                  <label for="studentId">Student ID</label>
+                    <input type="text" th:field="*{studentId}" id="studentId" style="width:100%;padding:8px;" />
                 </div>
                 <div style="margin-bottom:10px;">
-                    <label>Program</label>
-                    <select th:field="*{program}" style="width:100%;padding:8px;">
+                    <label for="program">Program</label>
+                    <select th:field="*{program}" id="program" style="width:100%;padding:8px;">
                         <option th:each="p : ${programs}" th:value="${p}" th:text="${p}"></option>
                     </select>
                 </div>
