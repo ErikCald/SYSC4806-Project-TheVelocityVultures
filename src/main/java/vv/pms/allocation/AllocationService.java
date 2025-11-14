@@ -134,7 +134,61 @@ public class AllocationService {
     public Optional<ProjectAllocation> findAllocationByProjectId(Long projectId) {
         return repository.findByProjectId(projectId);
     }
-    
+
+    @Transactional
+    public void runBestEffortAllocation() {
+        // Best-effort: for each project, ensure allocation and try to fill students
+        List<Project> projects = projectService.findAllProjects();
+        List<Student> students = studentService.findAllStudents();
+
+        // First, ensure each project that should have an allocation has one with a professor.
+        for (Project project : projects) {
+            Optional<ProjectAllocation> existing =
+                    repository.findByProjectId(project.getId());
+            if (existing.isEmpty()) {
+                // naive: pick any professor (or skip if none)
+                professorService.findAllProfessors().stream().findFirst().ifPresent(prof -> {
+                    try {
+                        assignProfessorToProject(project.getId(), prof.getId());
+                    } catch (RuntimeException ignored) {
+                        // best-effort: ignore failures
+                    }
+                });
+            }
+        }
+
+        // Refresh allocations and students after possible changes
+        students = studentService.findAllStudents();
+        List<ProjectAllocation> allocations = repository.findAll();
+
+        for (ProjectAllocation allocation : allocations) {
+            Project project = projectService.findProjectById(allocation.getProjectId())
+                    .orElse(null);
+            if (project == null) {
+                continue;
+            }
+            int capacity = project.getRequiredStudents();
+            for (Student student : students) {
+                if (student.isHasProject()) {
+                    continue;
+                }
+                if (!project.getProgramRestrictions().isEmpty()
+                        && !project.getProgramRestrictions().contains(student.getProgram())) {
+                    continue;
+                }
+                if (allocation.getAssignedStudentIds().size() >= capacity) {
+                    break;
+                }
+                try {
+                    assignStudentToProject(project.getId(), student.getId());
+                } catch (RuntimeException ignored) {
+                    // best-effort: ignore failures for individual students
+                }
+            }
+        }
+    }
+
+
     /**
      * Retrieves all allocation records.
      */
