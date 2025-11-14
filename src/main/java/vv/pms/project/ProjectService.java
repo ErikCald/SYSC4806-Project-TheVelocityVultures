@@ -89,14 +89,14 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public Page<Project> findProjects(String program, String status, Pageable pageable) {
 
-        // 1. Convert String filters to Enums (or null)
+        // Convert String filters to Enums (or null)
         Program programEnum = (program != null && !program.isBlank()) ? Program.valueOf(program.toUpperCase()) : null;
         ProjectStatus statusEnum = (status != null && !status.isBlank()) ? ProjectStatus.valueOf(status.toUpperCase()) : null;
 
         // Use a map to hold named parameters
         Map<String, Object> parameters = new HashMap<>();
 
-        // 2. Build the main data query string (JPQL)
+        // Build the main data query string (JPQL)
         StringBuilder sb = new StringBuilder("SELECT DISTINCT p FROM Project p ");
         sb.append("LEFT JOIN p.programRestrictions pr WHERE 1=1 ");
 
@@ -110,14 +110,14 @@ public class ProjectService {
         }
         sb.append("ORDER BY p.title ASC");
 
-        // 3. Create and configure the data query
+        // Create and configure the data query
         TypedQuery<Project> dataQuery = em.createQuery(sb.toString(), Project.class);
         parameters.forEach(dataQuery::setParameter); // Set parameters
 
         dataQuery.setFirstResult((int) pageable.getOffset());
         dataQuery.setMaxResults(pageable.getPageSize());
 
-        // 4. Build the separate COUNT query
+        // Build the separate COUNT query
         StringBuilder countSb = new StringBuilder("SELECT COUNT(DISTINCT p) FROM Project p ");
         countSb.append("LEFT JOIN p.programRestrictions pr WHERE 1=1 ");
 
@@ -131,7 +131,7 @@ public class ProjectService {
         TypedQuery<Long> countQuery = em.createQuery(countSb.toString(), Long.class);
         parameters.forEach(countQuery::setParameter); // Use same parameters
 
-        // 5. Execute queries and build the Page object
+        // Execute queries and build the Page object
         List<Project> projects = dataQuery.getResultList();
         long totalCount = countQuery.getSingleResult();
 

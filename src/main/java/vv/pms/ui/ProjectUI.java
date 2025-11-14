@@ -31,19 +31,18 @@ public class ProjectUI {
     private final ProjectService projectService;
     private final ProfessorService professorService;
     private final AllocationService allocationService;
-    private final StudentService studentService;    // <-- Add
+    private final StudentService studentService;    //
 
     public ProjectUI(ProjectService projectService,
                      ProfessorService professorService,
                      AllocationService allocationService,
-                     StudentService studentService) { // <-- Add
+                     StudentService studentService) {
         this.projectService = projectService;
         this.professorService = professorService;
         this.allocationService = allocationService;
-        this.studentService = studentService;     // <-- Add
+        this.studentService = studentService;
     }
 
-    // --- This is our LEAN DTO for the list page ---
     private record ProjectSummary(
             Long id,
             String title,
@@ -97,7 +96,7 @@ public class ProjectUI {
 
         model.addAttribute("projectForm", new ProjectForm());
 
-        return "projects"; // Render 'projects.html'
+        return "projects"; //
     }
 
 
@@ -165,7 +164,7 @@ public class ProjectUI {
         model.addAttribute("projectForm", form); // For the Edit modal
         model.addAttribute("programs", Program.values()); // For the Edit modal
 
-        return "project-details"; // <-- Return NEW HTML file
+        return "project-details"; //
     }
 
     @PostMapping

@@ -63,15 +63,12 @@ public class StudentService {
     /** Finds all Students for a given set of IDs and returns them in a Map for fast lookups. */
     @Transactional(readOnly = true)
     public Map<Long, Student> findByIds(Set<Long> ids) {
-        // This relies on your repository having the built-in
-        // JpaRepository method 'findAllById()'
         return repository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Student::getId, Function.identity()));
     }
     
     @Transactional(readOnly = true)
     public List<Student> findStudentsWithoutProject() {
-        // Example of a custom business query
         return repository.findAll().stream()
                 .filter(s -> !s.isHasProject())
                 .toList();

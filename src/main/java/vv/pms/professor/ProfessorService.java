@@ -84,8 +84,6 @@ public class ProfessorService {
     /** Finds all Professors for a given set of IDs and returns them in a Map for fast lookups */
     @Transactional(readOnly = true)
     public Map<Long, Professor> findByIds(Set<Long> ids) {
-        // This relies on your repository having the built-in
-        // JpaRepository method 'findAllById()'
         return repository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Professor::getId, Function.identity()));
     }
