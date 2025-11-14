@@ -38,6 +38,14 @@ public class StudentService {
     }
 
     /**
+     * Find a student by email. Public API used by other modules (e.g., auth).
+     */
+    @Transactional(readOnly = true)
+    public Optional<Student> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    /**
      * Toggles the project status. Used internally or by the Allocation module after a successful assignment.
      */
     public void updateProjectStatus(Long studentId, boolean hasProject) {
