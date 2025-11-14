@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Projects</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Optional Bootstrap JS Bundle for modals -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -13,67 +11,82 @@
 <div class="container mt-4">
     <h1>Project Management</h1>
 
-    <!-- Add Project button -->
+    <form th:action="@{/projects}" method="get" id="filterForm" class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+            <label for="programFilter" class="form-label">Program:</label>
+            <select name="program" id="programFilter" class="form-select" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Programs</option>
+                <option th:each="p : ${programs}"
+                        th:value="${p}" th:text="${p}"
+                        th:selected="${p.name() == selectedProgram}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label for="statusFilter" class="form-label">Status:</label>
+            <select name="status" id="statusFilter" class="form-select" onchange="document.getElementById('filterForm').submit();">
+                <option value="">All Statuses</option>
+                <option th:each="s : ${statuses}"
+                        th:value="${s}" th:text="${s}"
+                        th:selected="${s.name() == selectedStatus}"></option>
+            </select>
+        </div>
+    </form>
+
     <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal"
             onclick="openAddProjectModal()">Add Project</button>
 
-    <!-- Projects Table -->
-    <table class="table table-striped">
+    <table class="table table-striped table-hover">
         <thead>
         <tr>
             <th>Title</th>
-            <th>Description</th>
-            <th>Programs</th>
-            <th>Max Students</th>
+            <th>Professor</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th>Spots Available</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="project : ${projects}">
-            <td th:text="${project.title}"></td>
-            <td th:text="${project.description}"></td>
-            <td th:text="${#strings.arrayJoin(project.programRestrictions.toArray(), ', ')}"></td>
-            <td th:text="${project.requiredStudents}"></td>
-            <td th:text="${project.status}"></td>
+        <tr th:each="proj : ${projectsPage.content}">
             <td>
-                <!-- Edit Button -->
-                <button class="btn btn-warning btn-sm edit-project-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#projectModal"
-                        th:attr="
-                            data-project-id=${project.id},
-                            data-project-title=${project.title},
-                            data-project-description=${project.description},
-                            data-project-programs=${#strings.arrayJoin(project.programRestrictions.toArray(), '|')},
-                            data-project-requiredStudents=${project.requiredStudents}">
-                    Edit
-                </button>
-
-                <!-- Delete -->
-                <form th:action="@{/projects/delete}" method="post" class="d-inline">
-                    <input type="hidden" name="id" th:value="${project.id}"/>
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-
-                <!-- Archive -->
-                <form th:action="@{/projects/archive}" method="post" class="d-inline">
-                    <input type="hidden" name="id" th:value="${project.id}"/>
-                    <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
-                </form>
+                <a th:href="@{/projects/details/{id}(id=${proj.id})}"
+                   th:text="${proj.title}"></a>
             </td>
+            <td th:text="${proj.professorName}"></td>
+            <td th:text="${proj.status}"></td>
+            <td th:text="${proj.spotsAvailable}"></td>
         </tr>
         </tbody>
     </table>
+
+    <nav aria-label="Page navigation" th:if="${projectsPage.totalPages > 1}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${projectsPage.hasPrevious()} ? '' : 'disabled'">
+                <a class="page-link" th:href="@{/projects(page=${projectsPage.number - 1}, program=${selectedProgram}, status=${selectedStatus})}">
+                    Previous
+                </a>
+            </li>
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, projectsPage.totalPages - 1)}"
+                th:classappend="${i == projectsPage.number} ? 'active' : ''">
+                <a class="page-link" th:href="@{/projects(page=${i}, program=${selectedProgram}, status=${selectedStatus})}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${projectsPage.hasNext()} ? '' : 'disabled'">
+                <a class="page-link" th:href="@{/projects(page=${projectsPage.number + 1}, program=${selectedProgram}, status=${selectedStatus})}">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
-<!-- Add/Edit Project Modal -->
 <div class="modal fade" id="projectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form th:action="@{/projects}" th:object="${projectForm}" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="projectModalTitle">Project Form</h5>
+                    <h5 class="modal-title" id="projectModalTitle">Add Project</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -116,7 +129,6 @@
 
 <script>
     function openAddProjectModal() {
-        // Clear modal fields for adding a new project
         document.getElementById('projectModalTitle').innerText = 'Add Project';
         document.getElementById('projectId').value = '';
         document.getElementById('projectTitle').value = '';
@@ -124,23 +136,6 @@
         document.getElementById('projectRequiredStudents').value = '';
         document.querySelectorAll('.program-checkbox').forEach(cb => cb.checked = false);
     }
-
-    // Edit project modal population
-    document.querySelectorAll('.edit-project-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.getElementById('projectModalTitle').innerText = 'Edit Project';
-            document.getElementById('projectId').value = btn.getAttribute('data-project-id');
-            document.getElementById('projectTitle').value = btn.getAttribute('data-project-title');
-            document.getElementById('projectDescription').value = btn.getAttribute('data-project-description');
-            document.getElementById('projectRequiredStudents').value = btn.getAttribute('data-project-requiredStudents');
-
-            // Set program checkboxes
-            const selectedPrograms = btn.getAttribute('data-project-programs').split('|');
-            document.querySelectorAll('.program-checkbox').forEach(cb => {
-                cb.checked = selectedPrograms.includes(cb.value);
-            });
-        });
-    });
 </script>
 </body>
 </html>
