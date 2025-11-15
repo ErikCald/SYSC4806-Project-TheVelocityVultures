@@ -125,9 +125,9 @@ public class ProjectUI {
                     profEntity.getId(), profEntity.getName(), profEntity.getEmail());
 
             // Get Students
-            Set<Long> studentIds = (Set<Long>) allocation.getAssignedStudentIds();
-            List<Student> studentEntities = studentIds.isEmpty() ? Collections.emptyList() :
-                    List.copyOf(studentService.findByIds(studentIds).values());
+            List<Long> studentIds = allocation.getAssignedStudentIds();
+            List<Student> studentEntities = (studentIds == null || studentIds.isEmpty()) ? Collections.emptyList() :
+                    List.copyOf(studentService.findByIds(Set.copyOf(studentIds)).values());
             studentDTOs = studentEntities.stream()
                     .map(student -> new ProjectDetailsDTO.StudentDTO(
                             student.getId(), student.getName(), student.getStudentId(),
