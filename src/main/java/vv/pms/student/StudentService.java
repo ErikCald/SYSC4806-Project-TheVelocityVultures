@@ -1,11 +1,14 @@
 // vv.pms.student.StudentService.java
+
 package vv.pms.student;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vv.pms.student.internal.StudentRepository; // Import from its own internal package
+import vv.pms.student.internal.StudentRepository;
+
 import java.util.List;
 import java.util.Optional;
+
 import java.util.Set;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,6 +32,7 @@ public class StudentService {
         if (repository.findByStudentId(studentId).isPresent()) {
             throw new IllegalArgumentException("Student ID " + studentId + " already exists.");
         }
+
         Student newStudent = new Student(name, studentId, email, program);
         return repository.save(newStudent);
     }
@@ -50,12 +54,19 @@ public class StudentService {
     }
 
     /**
-     * Toggles the project status. Used internally or by the Allocation module after a successful assignment.
+     * Returns all students. Used by allocation UI / best-effort algorithm.
+     */
+    @Transactional(readOnly = true)
+    public List<Student> findAllStudents() {
+        return repository.findAll();
+    }
+
+    /**
+     * Toggles the project status. Used by the Allocation module after a successful assignment.
      */
     public void updateProjectStatus(Long studentId, boolean hasProject) {
         Student student = repository.findById(studentId)
-            .orElseThrow(() -> new StudentNotFoundException("Student ID " + studentId + " not found."));
-        
+                .orElseThrow(() -> new StudentNotFoundException("Student ID " + studentId + " not found."));
         student.setHasProject(hasProject);
         repository.save(student);
     }
@@ -73,7 +84,7 @@ public class StudentService {
                 .filter(s -> !s.isHasProject())
                 .toList();
     }
-    
+
     // --- Custom Exception ---
     public static class StudentNotFoundException extends RuntimeException {
         public StudentNotFoundException(String message) {
