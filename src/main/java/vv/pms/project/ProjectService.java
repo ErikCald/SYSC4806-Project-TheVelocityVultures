@@ -1,13 +1,19 @@
 package vv.pms.project;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import vv.pms.project.internal.ProjectRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -78,7 +84,57 @@ public class ProjectService {
         p.archive();
         em.merge(p);
     }
+
+    /** Find Projects */
+    @Transactional(readOnly = true)
+    public Page<Project> findProjects(String program, String status, Pageable pageable) {
+
+        // Convert String filters to Enums (or null)
+        Program programEnum = (program != null && !program.isBlank()) ? Program.valueOf(program.toUpperCase()) : null;
+        ProjectStatus statusEnum = (status != null && !status.isBlank()) ? ProjectStatus.valueOf(status.toUpperCase()) : null;
+
+        // Use a map to hold named parameters
+        Map<String, Object> parameters = new HashMap<>();
+
+        // Build the main data query string (JPQL)
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT p FROM Project p ");
+        sb.append("LEFT JOIN p.programRestrictions pr WHERE 1=1 ");
+
+        if (programEnum != null) {
+            sb.append("AND pr = :program ");
+            parameters.put("program", programEnum);
+        }
+        if (statusEnum != null) {
+            sb.append("AND p.status = :status ");
+            parameters.put("status", statusEnum);
+        }
+        sb.append("ORDER BY p.title ASC");
+
+        // Create and configure the data query
+        TypedQuery<Project> dataQuery = em.createQuery(sb.toString(), Project.class);
+        parameters.forEach(dataQuery::setParameter); // Set parameters
+
+        dataQuery.setFirstResult((int) pageable.getOffset());
+        dataQuery.setMaxResults(pageable.getPageSize());
+
+        // Build the separate COUNT query
+        StringBuilder countSb = new StringBuilder("SELECT COUNT(DISTINCT p) FROM Project p ");
+        countSb.append("LEFT JOIN p.programRestrictions pr WHERE 1=1 ");
+
+        if (programEnum != null) {
+            countSb.append("AND pr = :program ");
+        }
+        if (statusEnum != null) {
+            countSb.append("AND p.status = :status ");
+        }
+
+        TypedQuery<Long> countQuery = em.createQuery(countSb.toString(), Long.class);
+        parameters.forEach(countQuery::setParameter); // Use same parameters
+
+        // Execute queries and build the Page object
+        List<Project> projects = dataQuery.getResultList();
+        long totalCount = countQuery.getSingleResult();
+
+        return new PageImpl<>(projects, pageable, totalCount);
+    }
 }
-
-
-

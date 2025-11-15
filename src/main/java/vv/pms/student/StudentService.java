@@ -9,6 +9,10 @@ import vv.pms.student.internal.StudentRepository;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import vv.pms.project.Program;
 
 @Service
@@ -67,6 +71,13 @@ public class StudentService {
         repository.save(student);
     }
 
+    /** Finds all Students for a given set of IDs and returns them in a Map for fast lookups. */
+    @Transactional(readOnly = true)
+    public Map<Long, Student> findByIds(Set<Long> ids) {
+        return repository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Student::getId, Function.identity()));
+    }
+    
     @Transactional(readOnly = true)
     public List<Student> findStudentsWithoutProject() {
         return repository.findAll().stream()

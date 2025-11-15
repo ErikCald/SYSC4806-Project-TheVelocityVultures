@@ -10,6 +10,10 @@ import vv.pms.project.Project;
 import vv.pms.student.Student;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -195,6 +199,13 @@ public class AllocationService {
     @Transactional(readOnly = true)
     public List<ProjectAllocation> findAllAllocations() {
         return repository.findAll();
+    }
+
+    /** Finds all Allocations for a given set of Project IDs and returns them in a Map for fast lookups. */
+    @Transactional(readOnly = true)
+    public Map<Long, ProjectAllocation> findAllocationsByProjectIds(Set<Long> projectIds) {
+        return repository.findByProjectIdIn(projectIds).stream()
+                .collect(Collectors.toMap(ProjectAllocation::getProjectId, Function.identity()));
     }
 
     // Define module-specific exceptions that provide clear context
