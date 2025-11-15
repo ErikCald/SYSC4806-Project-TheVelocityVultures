@@ -96,7 +96,7 @@ public class AllocationService {
             throw new AllocationStateException("Student " + studentId + " already has an assigned project.");
         }
 
-        if (allocation.getCurrentStudentCount() >= project.getRequiredStudents()) {
+        if (allocation.getAssignedStudentIds().size() >= project.getRequiredStudents()) {
             throw new AllocationStateException("Project " + projectId + " is already full.");
         }
         
@@ -105,7 +105,7 @@ public class AllocationService {
         }
 
         // 3. Update State in Allocation Module and Student Module
-        allocation.assignStudent(studentId); // Updates allocation student list and count
+        allocation.addStudent(studentId); // Updates allocation student list and count
         studentService.updateProjectStatus(studentId, true); // Updates Student's hasProject status
         
         return repository.save(allocation);
