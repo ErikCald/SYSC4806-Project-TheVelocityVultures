@@ -4,7 +4,7 @@ package vv.pms.student;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vv.pms.student.internal.StudentRepository; // Import from its own internal package
+import vv.pms.student.internal.StudentRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +58,7 @@ public class StudentService {
     }
 
     /**
-     * Toggles the project status. Used internally or by the Allocation module after a successful assignment.
+     * Toggles the project status. Used by the Allocation module after a successful assignment.
      */
     public void updateProjectStatus(Long studentId, boolean hasProject) {
         Student student = repository.findById(studentId)
@@ -69,7 +69,6 @@ public class StudentService {
 
     @Transactional(readOnly = true)
     public List<Student> findStudentsWithoutProject() {
-        // Example of a custom business query
         return repository.findAll().stream()
                 .filter(s -> !s.isHasProject())
                 .toList();

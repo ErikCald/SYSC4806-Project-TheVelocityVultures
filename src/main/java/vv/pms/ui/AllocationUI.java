@@ -8,6 +8,10 @@ import vv.pms.allocation.ProjectAllocation;
 import vv.pms.professor.ProfessorService;
 import vv.pms.project.ProjectService;
 import vv.pms.student.StudentService;
+import vv.pms.student.Student;
+import vv.pms.project.Project;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/allocations")
@@ -30,10 +34,28 @@ public class AllocationUI {
 
     @GetMapping
     public String listAllocations(Model model) {
-        model.addAttribute("allocations", allocationService.findAllAllocations());
-        model.addAttribute("projects", projectService.findAllProjects());
-        model.addAttribute("professors", professorService.findAllProfessors());
-        model.addAttribute("students", studentService.findAllStudents());
+        List<ProjectAllocation> allocations = allocationService.findAllAllocations();
+        List<Project> projects = projectService.findAllProjects();
+        var professors = professorService.findAllProfessors();
+        List<Student> students = studentService.findAllStudents();
+
+        // Resolve titles/names for UI
+        for (ProjectAllocation alloc : allocations) {
+            projects.stream()
+                    .filter(p -> p.getId().equals(alloc.getProjectId()))
+                    .findFirst()
+                    .ifPresent(p -> alloc.setProjectTitle(p.getTitle()));
+
+            professors.stream()
+                    .filter(prof -> prof.getId().equals(alloc.getProfessorId()))
+                    .findFirst()
+                    .ifPresent(prof -> alloc.setProfessorName(prof.getName()));
+        }
+
+        model.addAttribute("allocations", allocations);
+        model.addAttribute("projects", projects);
+        model.addAttribute("professors", professors);
+        model.addAttribute("students", students);
         return "allocations";
     }
 
