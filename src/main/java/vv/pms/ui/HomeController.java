@@ -21,7 +21,7 @@ public class HomeController {
             return "redirect:/professors";
         }
         if ("STUDENT".equalsIgnoreCase(role)) {
-            return "redirect:/projects";
+            return "redirect:/student/profile";
         }
         // default for coordinator and others
         return "redirect:/projects";

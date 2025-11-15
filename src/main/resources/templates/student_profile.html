@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>My Profile</title>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div style="max-width: 600px; margin: 40px auto; padding: 20px; border:1px solid #ddd;">
+
+    <h2>My Profile</h2>
+
+    <div th:if="${success}" style="color: green; margin-bottom: 10px;">
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${error}" style="color: red; margin-bottom: 10px;">
+        <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/student/profile}" th:object="${student}" method="post">
+
+        <div style="margin-bottom: 10px;">
+            <label>Name</label>
+            <input type="text" th:field="*{name}" required style="width: 100%; padding: 8px;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>Email</label>
+            <input type="email" th:field="*{email}" required style="width: 100%; padding: 8px;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>Student ID</label>
+            <input type="text" th:field="*{studentId}" required style="width: 100%; padding: 8px;">
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>Program</label>
+            <select th:field="*{program}" style="width: 100%; padding: 8px;">
+                <option th:each="p : ${programs}"
+                        th:value="${p}"
+                        th:text="${p}">
+                </option>
+            </select>
+        </div>
+
+        <div style="text-align: right; margin-top: 15px;">
+            <button type="submit" style="padding: 8px 16px;">Save Changes</button>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>
