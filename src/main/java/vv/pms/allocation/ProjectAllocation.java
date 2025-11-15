@@ -25,10 +25,6 @@ public class ProjectAllocation {
     @CollectionTable(name = "allocation_assigned_students", joinColumns = @JoinColumn(name = "allocation_id"))
     private Set<Long> assignedStudentIds = new HashSet<>();
 
-    // For future milestones: Tracks the current count for quick checks
-    @Column(nullable = false)
-    private int currentStudentCount = 0;
-
     // --- Constructors ---
     public ProjectAllocation() {}
 
@@ -38,11 +34,14 @@ public class ProjectAllocation {
         this.professorId = professorId;
     }
 
-    // --- Business Logic focused on relationships (for future milestones) ---
+    // --- Business Logic focused on relationships ---
     public void assignStudent(Long studentId) {
         // Validation logic for fullness/duplicates goes in the AllocationService
         this.assignedStudentIds.add(studentId);
-        this.currentStudentCount = this.assignedStudentIds.size();
+    }
+
+    public void unassignStudent(Long studentId) {
+        this.assignedStudentIds.remove(studentId);
     }
 
     // --- Getters and Setters ---
@@ -67,6 +66,6 @@ public class ProjectAllocation {
     }
 
     public int getCurrentStudentCount() {
-        return currentStudentCount;
+        return assignedStudentIds.size();
     }
 }
