@@ -78,7 +78,7 @@ public class ProjectUI {
             ProjectAllocation alloc = allocMap.get(project.getId());
             Professor prof = (alloc != null) ? profMap.get(alloc.getProfessorId()) : null;
             String profName = (prof != null) ? prof.getName() : "Unassigned";
-            int allocCount = (alloc != null) ? alloc.getCurrentStudentCount() : 0;
+            int allocCount = (alloc != null) ? alloc.getAssignedStudentIds().size() : 0;
             int spotsAvailable = project.getRequiredStudents() - allocCount;
 
             return new ProjectSummary(
@@ -127,9 +127,9 @@ public class ProjectUI {
                     profEntity.getId(), profEntity.getName(), profEntity.getEmail());
 
             // Get Students
-            Set<Long> studentIds = allocation.getAssignedStudentIds();
-            List<Student> studentEntities = studentIds.isEmpty() ? Collections.emptyList() :
-                    List.copyOf(studentService.findByIds(studentIds).values());
+            List<Long> studentIds = allocation.getAssignedStudentIds();
+            List<Student> studentEntities = (studentIds == null || studentIds.isEmpty()) ? Collections.emptyList() :
+                    List.copyOf(studentService.findByIds(Set.copyOf(studentIds)).values());
             studentDTOs = studentEntities.stream()
                     .map(student -> new ProjectDetailsDTO.StudentDTO(
                             student.getId(), student.getName(), student.getStudentId(),
