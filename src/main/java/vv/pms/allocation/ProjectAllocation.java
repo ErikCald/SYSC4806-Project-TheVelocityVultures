@@ -37,6 +37,17 @@ public class ProjectAllocation {
         this.professorId = professorId;
     }
 
+    // --- Business Logic focused on relationships ---
+    public void assignStudent(Long studentId) {
+        // Validation logic for fullness/duplicates goes in the AllocationService
+        this.assignedStudentIds.add(studentId);
+    }
+
+    public void unassignStudent(Long studentId) {
+        this.assignedStudentIds.remove(studentId);
+    }
+
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
@@ -53,8 +64,8 @@ public class ProjectAllocation {
         return assignedStudentIds;
     }
 
-    public void setAssignedStudentIds(List<Long> assignedStudentIds) {
-        this.assignedStudentIds = assignedStudentIds;
+    public int getCurrentStudentCount() {
+        return assignedStudentIds.size();
     }
 
     public void addStudent(Long studentId) {

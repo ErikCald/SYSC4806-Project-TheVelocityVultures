@@ -6,7 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpSession;
 
 import vv.pms.allocation.ProjectAllocation;
 import vv.pms.allocation.AllocationService;
@@ -101,7 +103,7 @@ public class ProjectUI {
 
 
     @GetMapping("/details/{id}")
-    public String projectDetails(@PathVariable Long id, Model model) {
+    public String projectDetails(@PathVariable Long id, Model model, HttpSession session) {
 
         // Get the Project
         Project project = projectService.findProjectById(id)
@@ -159,12 +161,108 @@ public class ProjectUI {
                 project.getRequiredStudents()
         );
 
+        // Determine current user's assignment state (backend-driven for thymeleaf)
+        boolean currentUserIsStudent = false;
+        Long currentUserId = null;
+        if (session != null && session.getAttribute("currentUserRole") != null) {
+            Object roleObj = session.getAttribute("currentUserRole");
+            if (roleObj != null && "STUDENT".equalsIgnoreCase(roleObj.toString())) {
+                currentUserIsStudent = true;
+            }
+            Object idObj = session.getAttribute("currentUserId");
+            if (idObj != null) {
+                try {
+                    if (idObj instanceof Number) currentUserId = ((Number) idObj).longValue();
+                    else currentUserId = Long.parseLong(idObj.toString());
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        boolean currentUserAssigned = false;
+        if (currentUserId != null) {
+            for (ProjectDetailsDTO.StudentDTO s : studentDTOs) {
+                if (currentUserId.equals(s.id())) { currentUserAssigned = true; break; }
+            }
+        }
+
         // Add all data to the Model
         model.addAttribute("project", detailsDTO); // For display
         model.addAttribute("projectForm", form); // For the Edit modal
         model.addAttribute("programs", Program.values()); // For the Edit modal
+        model.addAttribute("currentUserIsStudent", currentUserIsStudent);
+        model.addAttribute("currentUserAssigned", currentUserAssigned);
+        model.addAttribute("spotsAvailable", spotsAvailable);
 
-        return "project-details"; //
+        return "project-details";
+    }
+
+    @PostMapping("/apply")
+    public String applyToProject(@RequestParam Long projectId, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (session == null) {
+            redirectAttributes.addFlashAttribute("applyError", "You must be logged in to apply.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Object roleObj = session.getAttribute("currentUserRole");
+        if (roleObj == null || !"STUDENT".equalsIgnoreCase(roleObj.toString())) {
+            redirectAttributes.addFlashAttribute("applyError", "Only students may apply to projects.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Object idObj = session.getAttribute("currentUserId");
+        if (idObj == null) {
+            redirectAttributes.addFlashAttribute("applyError", "Missing user id in session.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Long studentId;
+        try {
+            if (idObj instanceof Number) studentId = ((Number) idObj).longValue();
+            else studentId = Long.parseLong(idObj.toString());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("applyError", "Invalid user id in session.");
+            return "redirect:/projects/details/" + projectId;
+        }
+
+        try {
+            allocationService.assignStudentToProject(projectId, studentId);
+            return "redirect:/projects/details/" + projectId;
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("applyError", e.getMessage());
+            return "redirect:/projects/details/" + projectId;
+        }
+    }
+
+    @PostMapping("/unapply")
+    public String unapplyFromProject(@RequestParam Long projectId, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (session == null) {
+            redirectAttributes.addFlashAttribute("applyError", "You must be logged in to unapply.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Object roleObj = session.getAttribute("currentUserRole");
+        if (roleObj == null || !"STUDENT".equalsIgnoreCase(roleObj.toString())) {
+            redirectAttributes.addFlashAttribute("applyError", "Only students may unapply from projects.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Object idObj = session.getAttribute("currentUserId");
+        if (idObj == null) {
+            redirectAttributes.addFlashAttribute("applyError", "Missing user id in session.");
+            return "redirect:/projects/details/" + projectId;
+        }
+        Long studentId;
+        try {
+            if (idObj instanceof Number) studentId = ((Number) idObj).longValue();
+            else studentId = Long.parseLong(idObj.toString());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("applyError", "Invalid user id in session.");
+            return "redirect:/projects/details/" + projectId;
+        }
+
+        try {
+            allocationService.unassignStudentFromProject(projectId, studentId);
+            return "redirect:/projects/details/" + projectId;
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("applyError", e.getMessage());
+            return "redirect:/projects/details/" + projectId;
+        }
     }
 
     @PostMapping
