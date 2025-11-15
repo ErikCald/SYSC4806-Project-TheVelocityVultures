@@ -6,17 +6,14 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import vv.pms.auth.AuthenticationService;
-import vv.pms.ui.records.LoginForm;
 import vv.pms.auth.LoginRecord;
-import vv.pms.ui.records.SignupForm;
-import vv.pms.project.Program;
 import vv.pms.professor.ProfessorService;
 import vv.pms.student.StudentService;
+import vv.pms.ui.records.LoginForm;
+import vv.pms.ui.records.SignupForm;
+import vv.pms.project.Program;
 
 @Controller
 @RequestMapping
@@ -25,6 +22,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final ProfessorService professorService;
     private final StudentService studentService;
+
     public AuthController(AuthenticationService authenticationService,
                           ProfessorService professorService,
                           StudentService studentService) {
@@ -45,6 +43,7 @@ public class AuthController {
                            BindingResult bindingResult,
                            HttpServletRequest request,
                            Model model) {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("programs", Program.values());
             return "signup";
@@ -53,13 +52,17 @@ public class AuthController {
         try {
             if ("PROFESSOR".equalsIgnoreCase(form.getRole())) {
                 professorService.addProfessor(form.getName(), form.getEmail());
+
             } else if ("STUDENT".equalsIgnoreCase(form.getRole())) {
-                // require studentId and program
-                if (form.getStudentId() == null || form.getStudentId().isBlank() || form.getProgram() == null) {
+
+                if (form.getStudentId() == null || form.getStudentId().isBlank()
+                        || form.getProgram() == null) {
+
                     model.addAttribute("signupError", "Student ID and Program are required for student accounts.");
                     model.addAttribute("programs", Program.values());
                     return "signup";
                 }
+
                 studentService.addStudent(form.getName(), form.getStudentId(), form.getEmail(), form.getProgram());
             } else {
                 model.addAttribute("signupError", "Unknown role selected.");
@@ -72,16 +75,14 @@ public class AuthController {
             return "signup";
         }
 
-        // Auto-login after successful signup
-        var opt = authenticationService.authenticateByEmail(form.getEmail());
-        if (opt.isPresent()) {
-            LoginRecord user = opt.get();
+        // Auto-login
+        authenticationService.authenticateByEmail(form.getEmail()).ifPresent(user -> {
             HttpSession session = request.getSession(true);
             session.setAttribute("currentUserId", user.id());
             session.setAttribute("currentUserName", user.name());
             session.setAttribute("currentUserEmail", user.email());
             session.setAttribute("currentUserRole", user.role());
-        }
+        });
 
         return "redirect:/projects";
     }
@@ -97,34 +98,30 @@ public class AuthController {
                           BindingResult bindingResult,
                           HttpServletRequest request,
                           Model model) {
-        try {
-            if (bindingResult.hasErrors()) {
-                return "login";
-            }
-            var opt = authenticationService.authenticateByEmail(form.getEmail());
-            if (opt.isPresent()) {
-                LoginRecord user = opt.get();
-                HttpSession session = request.getSession(true);
-                session.setAttribute("currentUserId", user.id());
-                session.setAttribute("currentUserName", user.name());
-                session.setAttribute("currentUserEmail", user.email());
-                session.setAttribute("currentUserRole", user.role());
-                return "redirect:/home";
-            }
-            model.addAttribute("loginError", "No account found for that email.");
-            return "login";
-        } catch (Exception e) {
-            model.addAttribute("loginError", "An unexpected error occurred. Please try again.");
+
+        if (bindingResult.hasErrors()) {
             return "login";
         }
+
+        var opt = authenticationService.authenticateByEmail(form.getEmail());
+        if (opt.isPresent()) {
+            LoginRecord user = opt.get();
+            HttpSession session = request.getSession(true);
+            session.setAttribute("currentUserId", user.id());
+            session.setAttribute("currentUserName", user.name());
+            session.setAttribute("currentUserEmail", user.email());
+            session.setAttribute("currentUserRole", user.role());
+            return "redirect:/home";
+        }
+
+        model.addAttribute("loginError", "No account found for that email.");
+        return "login";
     }
 
     @GetMapping("/auth/logout")
     public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+        if (session != null) session.invalidate();
         return "redirect:/login";
     }
 }
