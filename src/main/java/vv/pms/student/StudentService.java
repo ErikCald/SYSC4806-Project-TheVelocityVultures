@@ -91,4 +91,21 @@ public class StudentService {
             super(message);
         }
     }
+
+    public Student updateStudent(Long id, String name, String studentId, String email, vv.pms.project.Program program) {
+        Student s = repository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Student ID " + id + " not found."));
+        // If changing studentId/email check uniqueness
+        if (!s.getStudentId().equals(studentId) && repository.findByStudentId(studentId).isPresent()) {
+            throw new IllegalArgumentException("Student ID " + studentId + " already exists.");
+        }
+        if (!s.getEmail().equals(email) && repository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("Email " + email + " already exists.");
+        }
+        s.setName(name);
+        s.setStudentId(studentId);
+        s.setEmail(email);
+        s.setProgram(program);
+        return repository.save(s);
+    }
 }

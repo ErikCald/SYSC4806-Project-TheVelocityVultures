@@ -37,14 +37,12 @@ public class ProjectAllocation {
         this.professorId = professorId;
     }
 
-    // --- Business Logic focused on relationships ---
+
     public void assignStudent(Long studentId) {
-        // Validation logic for fullness/duplicates goes in the AllocationService
         this.assignedStudentIds.add(studentId);
     }
 
-    public void unassignStudent(Long studentId) {
-        this.assignedStudentIds.remove(studentId);
+    public void unassignStudent(long studentId) {unassignStudent(studentId);
     }
 
     // --- Getters and Setters ---
