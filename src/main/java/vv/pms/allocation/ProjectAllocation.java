@@ -37,13 +37,14 @@ public class ProjectAllocation {
         this.professorId = professorId;
     }
 
-
+    // --- Business Logic focused on relationships (for future milestones) ---
     public void assignStudent(Long studentId) {
         this.assignedStudentIds.add(studentId);
     }
 
     public void unassignStudent(long studentId) {unassignStudent(studentId);
     }
+
 
     // --- Getters and Setters ---
     public Long getId() {
@@ -62,8 +63,8 @@ public class ProjectAllocation {
         return assignedStudentIds;
     }
 
-    public int getCurrentStudentCount() {
-        return assignedStudentIds.size();
+    public void setAssignedStudentIds(List<Long> assignedStudentIds) {
+        this.assignedStudentIds = assignedStudentIds;
     }
 
     public void addStudent(Long studentId) {
