@@ -5,62 +5,66 @@
     <title>Sign up</title>
 </head>
 <body>
-    <div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: header"></div>
 
-    <div style="max-width:600px;margin:40px auto;padding:20px;border:1px solid #ddd;">
-        <h2>Sign up</h2>
+<div style="max-width:600px;margin:40px auto;padding:20px;border:1px solid #ddd;">
+    <h2>Sign up</h2>
 
-        <div th:if="${signupError}" style="color:red;"> <span th:text="${signupError}"></span> </div>
-
-        <form th:action="@{/auth/signup}" th:object="${signupForm}" method="post">
-            <div style="margin-bottom:10px;">
-                <label for="name">Name</label>
-                <input type="text" th:field="*{name}" id="name" required style="width:100%;padding:8px;" />
-            </div>
-            <div style="margin-bottom:10px;">
-                <label for="email">Email</label>
-                <input type="email" id="email" th:field="*{email}" required style="width:100%;padding:8px;" />
-            </div>
-
-            <div style="margin-bottom:10px;">
-                <label>Role</label><br/>
-                <label><input type="radio" th:field="*{role}" value="STUDENT"/> Student</label>
-                <label style="margin-left:15px;"><input type="radio" th:field="*{role}" value="PROFESSOR"/> Professor</label>
-            </div>
-
-            <div id="student-fields" style="margin-bottom:10px;">
-                <div style="margin-bottom:10px;">
-                  <label for="studentId">Student ID</label>
-                    <input type="text" th:field="*{studentId}" id="studentId" style="width:100%;padding:8px;" />
-                </div>
-                <div style="margin-bottom:10px;">
-                    <label for="program">Program</label>
-                    <select th:field="*{program}" id="program" style="width:100%;padding:8px;">
-                        <option th:each="p : ${programs}" th:value="${p}" th:text="${p}"></option>
-                    </select>
-                </div>
-            </div>
-
-            <div style="text-align:right;">
-                <a th:href="@{/login}" style="margin-right:10px;">Have an account? Log in</a>
-                <button type="submit">Sign up</button>
-            </div>
-        </form>
+    <div th:if="${signupError}" style="color:red;">
+        <span th:text="${signupError}"></span>
     </div>
 
-    <script>
-        // Toggle student-only fields when role changes
-        document.addEventListener('DOMContentLoaded', function () {
-            const studentFields = document.getElementById('student-fields');
-            const radios = document.querySelectorAll('input[name="role"]');
-            function update() {
-                const val = Array.from(radios).find(r => r.checked).value;
-                if (val === 'STUDENT') studentFields.style.display = '';
-                else studentFields.style.display = 'none';
-            }
-            radios.forEach(r => r.addEventListener('change', update));
-            update();
-        });
-    </script>
+    <form th:action="@{/auth/signup}" th:object="${signupForm}" method="post">
+        <div style="margin-bottom:10px;">
+            <label for="name">Name</label>
+            <input type="text" th:field="*{name}" id="name" required style="width:100%;padding:8px;" />
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label for="email">Email</label>
+            <input type="email" th:field="*{email}" id="email" required style="width:100%;padding:8px;" />
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label>Role</label><br/>
+            <label><input type="radio" th:field="*{role}" value="STUDENT"/> Student</label>
+            <label style="margin-left:15px;"><input type="radio" th:field="*{role}" value="PROFESSOR"/> Professor</label>
+        </div>
+
+        <div id="student-fields">
+            <div style="margin-bottom:10px;">
+                <label for="studentId">Student ID</label>
+                <input type="text" th:field="*{studentId}" id="studentId" style="width:100%;padding:8px;" />
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label for="program">Program</label>
+                <select th:field="*{program}" id="program" style="width:100%;padding:8px;">
+                    <option th:each="p : ${programs}" th:value="${p}" th:text="${p}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div style="text-align:right;">
+            <a th:href="@{/login}" style="margin-right:10px;">Have an account? Log in</a>
+            <button type="submit">Sign up</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const studentFields = document.getElementById('student-fields');
+        const radios = document.querySelectorAll('input[name="role"]');
+
+        function update() {
+            const checked = Array.from(radios).find(r => r.checked);
+            if (!checked) return;
+            studentFields.style.display = checked.value === 'STUDENT' ? '' : 'none';
+        }
+        radios.forEach(r => r.addEventListener('change', update));
+        update();
+    });
+</script>
 </body>
 </html>
