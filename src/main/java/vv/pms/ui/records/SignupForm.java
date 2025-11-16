@@ -6,14 +6,15 @@ import vv.pms.project.Program;
 
 public class SignupForm {
 
+    @NotBlank
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @NotBlank
+    @Email
     private String email;
 
-    @NotBlank(message = "Role is required")
-    private String role; // STUDENT or PROFESSOR
+    @NotBlank
+    private String role;
 
     // Student-only fields
     private String studentId;
@@ -21,7 +22,6 @@ public class SignupForm {
 
     public SignupForm() {}
 
-    // getters/setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
