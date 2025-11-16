@@ -31,9 +31,10 @@
             </select>
         </div>
     </form>
-
-    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal"
-            onclick="openAddProjectModal()">Add Project</button>
+    <div th:if="${currentUserRole == 'PROFESSOR'}">
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal"
+                onclick="openAddProjectModal()">Add Project</button>
+    </div>
 
     <table class="table table-striped table-hover">
         <thead>

@@ -43,8 +43,8 @@ public class ProjectAllocation {
         this.assignedStudentIds.add(studentId);
     }
 
-    public void unassignStudent(Long studentId) {
-        this.assignedStudentIds.remove(studentId);
+    public void unassignStudent(long studentId) {
+        unassignStudent(Long.valueOf(studentId));
     }
 
     // --- Getters and Setters ---
