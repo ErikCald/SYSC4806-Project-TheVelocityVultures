@@ -172,8 +172,8 @@ class AllocationServiceTest {
     @Test
     void assignStudent_projectFull_throws() {
         ProjectAllocation allocation = new ProjectAllocation(projectId, professorId);
-        allocation.assignStudent(200L);
-        allocation.assignStudent(201L); // project requires 2 students
+        allocation.assignStudent(Long.valueOf(200L));
+        allocation.assignStudent(Long.valueOf(201L)); // project requires 2 students
         when(repository.findByProjectId(projectId)).thenReturn(Optional.of(allocation));
         when(projectService.findProjectById(projectId)).thenReturn(Optional.of(project));
         when(studentService.findStudentById(studentId)).thenReturn(Optional.of(student));
@@ -197,7 +197,7 @@ class AllocationServiceTest {
     @Test
     void unassignStudentFromProject_success() {
         ProjectAllocation allocation = new ProjectAllocation(projectId, professorId);
-        allocation.assignStudent(studentId);
+        allocation.assignStudent(Long.valueOf(studentId));
         when(repository.findByProjectId(projectId)).thenReturn(Optional.of(allocation));
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 

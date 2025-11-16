@@ -45,6 +45,21 @@ public class ProjectAllocation {
         this.currentStudentCount = this.assignedStudentIds.size();
     }
 
+    // Primitive overload to make calls from tests or other callers that use long literals work.
+    public void assignStudent(long studentId) {
+        assignStudent(Long.valueOf(studentId));
+    }
+
+    // Convenience unassign methods
+    public void unassignStudent(Long studentId) {
+        this.assignedStudentIds.remove(studentId);
+        this.currentStudentCount = this.assignedStudentIds.size();
+    }
+
+    public void unassignStudent(long studentId) {
+        unassignStudent(Long.valueOf(studentId));
+    }
+
     // --- Getters and Setters ---
     public Long getId() {
         return id;
