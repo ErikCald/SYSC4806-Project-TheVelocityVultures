@@ -78,7 +78,7 @@ public class ProjectDetailController {
             Professor prof = (alloc != null) ? profMap.get(alloc.getProfessorId()) : null;
             String profName = (prof != null) ? prof.getName() : "Unassigned";
 
-            int allocCount = (alloc != null) ? alloc.getCurrentStudentCount() : 0; //
+            int allocCount = (alloc != null) ? alloc.getAssignedStudentIds().size() : 0; //
             int spotsAvailable = project.getRequiredStudents() - allocCount;
 
             return new ProjectSummaryDTO(
@@ -110,7 +110,7 @@ public class ProjectDetailController {
                 .orElseThrow(() -> new RuntimeException("Professor not found with id: " + allocation.getProfessorId())); // <-- Changed
 
         // Get the Students
-        Set<Long> studentIds = allocation.getAssignedStudentIds(); //
+        Set<Long> studentIds = (Set<Long>) allocation.getAssignedStudentIds(); //
         List<Student> studentEntities = studentIds.isEmpty() ? Collections.emptyList() :
                 List.copyOf(studentService.findByIds(studentIds).values()); //
 
