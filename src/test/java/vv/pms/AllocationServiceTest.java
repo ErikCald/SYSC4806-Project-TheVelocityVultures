@@ -197,7 +197,7 @@ class AllocationServiceTest {
     @Test
     void unassignStudentFromProject_success() {
         ProjectAllocation allocation = new ProjectAllocation(projectId, professorId);
-        allocation.assignStudent(Long.valueOf(studentId));
+        allocation.assignStudent(studentId);
         when(repository.findByProjectId(projectId)).thenReturn(Optional.of(allocation));
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
