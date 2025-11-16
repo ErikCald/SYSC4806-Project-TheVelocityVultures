@@ -42,7 +42,8 @@ public class ProjectAllocation {
         this.assignedStudentIds.add(studentId);
     }
 
-    public void unassignStudent(long studentId) {unassignStudent(studentId);
+    public void unassignStudent(Long studentId) {
+        this.assignedStudentIds.remove(studentId);
     }
 
 
