@@ -206,6 +206,10 @@ This project uses a GitHub Projects Kanban workflow to track tasks across the sp
 Below is the snapshot of our board at the end of Milestone 2:
 <img width="1910" height="863" alt="KanbanSS" src="https://github.com/user-attachments/assets/002cd4da-5b3d-4826-9938-5274f7b695d6" />
 
+## 📌 Kanban Board Snapshot (Milestone 3) - Plan for the next sprint
+Below is the snapshot of our board for our plan for Milestone 3:
+<img width="959" height="410" alt="image" src="https://github.com/user-attachments/assets/3d406bb0-0915-4921-94f1-2800d0537e71" />
+
 
 ## Contributors
 - Darren Wallace  
