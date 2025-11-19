@@ -214,10 +214,10 @@ public class AllocationService {
      */
     @Transactional(readOnly = true)
     public Map<Long, Long> mapStudentToProjectIds() {
-    return repository.findAll().stream()
-        .flatMap(a -> a.getAssignedStudentIds().stream()
-            .map(sid -> new java.util.AbstractMap.SimpleEntry<>(sid, a.getProjectId())))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return repository.findAll().stream()
+            .flatMap(a -> a.getAssignedStudentIds().stream()
+                .map(sid -> new java.util.AbstractMap.SimpleEntry<>(sid, a.getProjectId())))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // Define module-specific exceptions that provide clear context

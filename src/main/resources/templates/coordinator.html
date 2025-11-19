@@ -131,8 +131,8 @@
             return row.querySelector('td:nth-child(4)').textContent.trim();
         });
         const recipients = emails.join(';');
-        const subject = encodeURIComponent(document.getElementById('modalSubject').value).replace(/\+/g,'%20');
-        const body = encodeURIComponent(document.getElementById('modalBody').value).replace(/\+/g,'%20');
+        const subject = encodeURIComponent(document.getElementById('modalSubject').value);
+        const body = encodeURIComponent(document.getElementById('modalBody').value);
         const mailtoLink = 'mailto:' + recipients + '?subject=' + subject + '&body=' + body;
         window.location.href = mailtoLink;
     }

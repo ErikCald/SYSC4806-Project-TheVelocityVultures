@@ -26,7 +26,7 @@ public class HomeController {
         if ("COORDINATOR".equalsIgnoreCase(role)) {
             return "redirect:/coordinator";
         }
-        // default for coordinator and others
+        // default for unrecognized roles
         return "redirect:/projects";
     }
 }

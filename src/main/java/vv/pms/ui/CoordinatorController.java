@@ -55,26 +55,23 @@ public class CoordinatorController {
 
         // Filters
         String normalizedStatus = status == null ? "UNASSIGNED" : status.toUpperCase(); // default show unassigned
-        Program programEnum = (program != null && !program.isBlank()) ? Program.valueOf(program) : null;
+          Program programEnum = (program != null && !program.isBlank())
+                ? Arrays.stream(Program.values()).filter(p -> p.name().equals(program)).findFirst().orElse(null)
+                : null;
 
+        // Use allocation map (studentToProjectIds) as single source of truth for assignment status
         List<Student> filtered = allStudents.stream()
                 .filter(s -> {
-                    // Program filter
                     if (programEnum != null && !programEnum.equals(s.getProgram())) return false;
-                    // Status filter
-                    boolean assigned = s.isHasProject();
+                    boolean assigned = studentToProjectIds.containsKey(s.getId());
                     if ("ASSIGNED".equals(normalizedStatus) && !assigned) return false;
                     if ("UNASSIGNED".equals(normalizedStatus) && assigned) return false;
-                    return true; // ALL or passed conditions
+                    return true;
                 })
                 .filter(s -> {
                     if (projectId == null || projectId <= 0) return true;
-                    // If project filter chosen, only include if assigned AND matches that project
-                    String title = studentProjectTitles.get(s.getId());
-                    if (title == null) return false;
-                    return projectService.findProjectById(projectId)
-                            .map(p -> p.getTitle().equals(title))
-                            .orElse(false);
+                    Long pid = studentToProjectIds.get(s.getId());
+                    return pid != null && pid.equals(projectId);
                 })
                 .collect(Collectors.toList());
 
