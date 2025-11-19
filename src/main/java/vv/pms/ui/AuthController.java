@@ -11,6 +11,7 @@ import vv.pms.auth.AuthenticationService;
 import vv.pms.auth.LoginRecord;
 import vv.pms.professor.ProfessorService;
 import vv.pms.student.StudentService;
+import vv.pms.coordinator.CoordinatorService;
 import vv.pms.ui.records.LoginForm;
 import vv.pms.ui.records.SignupForm;
 import vv.pms.project.Program;
@@ -22,13 +23,16 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final ProfessorService professorService;
     private final StudentService studentService;
+    private final CoordinatorService coordinatorService;
 
     public AuthController(AuthenticationService authenticationService,
                           ProfessorService professorService,
-                          StudentService studentService) {
+                          StudentService studentService,
+                          CoordinatorService coordinatorService) {
         this.authenticationService = authenticationService;
         this.professorService = professorService;
         this.studentService = studentService;
+        this.coordinatorService = coordinatorService;
     }
 
     @GetMapping("/signup")
@@ -64,6 +68,8 @@ public class AuthController {
                 }
 
                 studentService.addStudent(form.getName(), form.getStudentId(), form.getEmail(), form.getProgram());
+            } else if ("COORDINATOR".equalsIgnoreCase(form.getRole())) {
+                coordinatorService.addCoordinator(form.getName(), form.getEmail());
             } else {
                 model.addAttribute("signupError", "Unknown role selected.");
                 model.addAttribute("programs", Program.values());
@@ -84,7 +90,7 @@ public class AuthController {
             session.setAttribute("currentUserRole", user.role());
         });
 
-        return "redirect:/projects";
+        return "redirect:/home";
     }
 
     @GetMapping("/login")
