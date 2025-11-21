@@ -208,6 +208,18 @@ public class AllocationService {
                 .collect(Collectors.toMap(ProjectAllocation::getProjectId, Function.identity()));
     }
 
+    /**
+     * Public API for other modules (e.g., coordinator dashboard) to obtain a mapping of studentId -> projectId
+     * without exposing internal repository details. Only includes students currently assigned.
+     */
+    @Transactional(readOnly = true)
+    public Map<Long, Long> mapStudentToProjectIds() {
+        return repository.findAll().stream()
+            .flatMap(a -> a.getAssignedStudentIds().stream()
+                .map(sid -> new java.util.AbstractMap.SimpleEntry<>(sid, a.getProjectId())))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     // Define module-specific exceptions that provide clear context
     public static class AllocationNotFoundException extends RuntimeException {
         public AllocationNotFoundException(String message) { super(message); }
