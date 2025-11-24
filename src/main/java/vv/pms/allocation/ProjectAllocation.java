@@ -39,23 +39,13 @@ public class ProjectAllocation {
 
     // --- Business Logic focused on relationships (for future milestones) ---
     public void assignStudent(Long studentId) {
-        // Validation logic for fullness/duplicates goes in the AllocationService
-        this.assignedStudentIds.add(studentId); 
+        this.assignedStudentIds.add(studentId);
     }
 
-    // Primitive overload to make calls from tests or other callers that use long literals work.
-    public void assignStudent(long studentId) {
-        assignStudent(Long.valueOf(studentId));
-    }
-
-    // Convenience unassign methods
     public void unassignStudent(Long studentId) {
         this.assignedStudentIds.remove(studentId);
     }
 
-    public void unassignStudent(long studentId) {
-        unassignStudent(Long.valueOf(studentId));
-    }
 
     // --- Getters and Setters ---
     public Long getId() {

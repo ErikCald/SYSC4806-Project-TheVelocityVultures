@@ -186,8 +186,23 @@
                             </scanPackages>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>auth-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>auth_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.auth</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
+
 
             <plugin>
                 <groupId>com.github.jeluard</groupId>

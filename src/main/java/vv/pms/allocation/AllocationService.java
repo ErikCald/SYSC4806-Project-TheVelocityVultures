@@ -3,8 +3,8 @@ package vv.pms.allocation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vv.pms.allocation.internal.ProjectAllocationRepository;
-import vv.pms.professor.ProfessorService; 
-import vv.pms.project.ProjectService;   
+import vv.pms.professor.ProfessorService;
+import vv.pms.project.ProjectService;
 import vv.pms.student.StudentService; // Need StudentService for student assignments
 import vv.pms.project.Project;
 import vv.pms.student.Student;
@@ -58,7 +58,7 @@ public class AllocationService {
         ProjectAllocation allocation = new ProjectAllocation(projectId, professorId);
         return repository.save(allocation);
     }
-    
+
     /**
      * Removes the professor allocation for a project.
      * Note: This might need to cascade to student unassignments in a production system.
@@ -66,7 +66,7 @@ public class AllocationService {
     public void removeProfessorAllocation(Long projectId) {
         ProjectAllocation allocation = repository.findByProjectId(projectId)
                 .orElseThrow(() -> new AllocationNotFoundException("Allocation for Project ID " + projectId + " not found."));
-        
+
         repository.delete(allocation);
     }
 
@@ -76,14 +76,14 @@ public class AllocationService {
      * Assigns a Student to an allocated Project, performing all necessary checks.
      */
     public ProjectAllocation assignStudentToProject(Long projectId, Long studentId) {
-        
+
         // 1. Retrieve Allocation and Entity Details
         ProjectAllocation allocation = repository.findByProjectId(projectId)
                 .orElseThrow(() -> new AllocationNotFoundException("Project " + projectId + " is not yet allocated to a professor."));
-        
+
         Project project = projectService.findProjectById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project ID " + projectId + " not found.")); // Should already exist
-                
+
         Student student = studentService.findStudentById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student ID " + studentId + " not found."));
 
@@ -91,7 +91,7 @@ public class AllocationService {
         if (allocation.getAssignedStudentIds().contains(studentId)) {
             throw new AllocationStateException("Student " + studentId + " is already assigned to this project.");
         }
-        
+
         if (student.isHasProject()) {
             throw new AllocationStateException("Student " + studentId + " already has an assigned project.");
         }
@@ -99,15 +99,15 @@ public class AllocationService {
         if (allocation.getAssignedStudentIds().size() >= project.getRequiredStudents()) {
             throw new AllocationStateException("Project " + projectId + " is already full.");
         }
-        
+
         if (!project.isProgramAllowed(student.getProgram())) {
-             throw new AllocationStateException("Student's program (" + student.getProgram() + ") does not match project restrictions.");
+            throw new AllocationStateException("Student's program (" + student.getProgram() + ") does not match project restrictions.");
         }
 
         // 3. Update State in Allocation Module and Student Module
         allocation.addStudent(studentId); // Updates allocation student list and count
         studentService.updateProjectStatus(studentId, true); // Updates Student's hasProject status
-        
+
         return repository.save(allocation);
     }
 
@@ -117,13 +117,13 @@ public class AllocationService {
     public ProjectAllocation unassignStudentFromProject(Long projectId, Long studentId) {
         ProjectAllocation allocation = repository.findByProjectId(projectId)
                 .orElseThrow(() -> new AllocationNotFoundException("Project " + projectId + " not allocated."));
-        
+
         if (!allocation.getAssignedStudentIds().contains(studentId)) {
-             throw new AllocationNotFoundException("Student " + studentId + " is not assigned to this project.");
+            throw new AllocationNotFoundException("Student " + studentId + " is not assigned to this project.");
         }
-        
+
         // Update State
-        allocation.getAssignedStudentIds().remove(studentId);
+        allocation.unassignStudent(studentId);
         studentService.updateProjectStatus(studentId, false);
 
         return repository.save(allocation);
@@ -206,6 +206,18 @@ public class AllocationService {
     public Map<Long, ProjectAllocation> findAllocationsByProjectIds(Set<Long> projectIds) {
         return repository.findByProjectIdIn(projectIds).stream()
                 .collect(Collectors.toMap(ProjectAllocation::getProjectId, Function.identity()));
+    }
+
+    /**
+     * Public API for other modules (e.g., coordinator dashboard) to obtain a mapping of studentId -> projectId
+     * without exposing internal repository details. Only includes students currently assigned.
+     */
+    @Transactional(readOnly = true)
+    public Map<Long, Long> mapStudentToProjectIds() {
+        return repository.findAll().stream()
+            .flatMap(a -> a.getAssignedStudentIds().stream()
+                .map(sid -> new java.util.AbstractMap.SimpleEntry<>(sid, a.getProjectId())))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // Define module-specific exceptions that provide clear context

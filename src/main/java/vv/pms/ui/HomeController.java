@@ -23,7 +23,10 @@ public class HomeController {
         if ("STUDENT".equalsIgnoreCase(role)) {
             return "redirect:/student/profile";
         }
-        // default for coordinator and others
+        if ("COORDINATOR".equalsIgnoreCase(role)) {
+            return "redirect:/coordinator";
+        }
+        // default for unrecognized roles
         return "redirect:/projects";
     }
 }
