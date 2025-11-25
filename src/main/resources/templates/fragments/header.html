@@ -16,6 +16,10 @@
                 <a th:href="@{/home}" style="margin-right:8px;margin-left:12px;">Home</a>
                 <a th:href="@{/projects}" style="margin-right:8px;">Projects</a>
 
+                <a th:href="@{/availability}"
+                   style="margin-right:8px;"
+                   th:if="${currentUserRole == 'STUDENT' or currentUserRole == 'PROFESSOR'}">Availability</a>
+
             </div>
 
             <div>
