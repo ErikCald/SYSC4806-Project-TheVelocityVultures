@@ -22,7 +22,6 @@ public class AvailabilityController {
 
     @GetMapping
     public String showAvailability(HttpSession session, Model model) {
-        // 1. Security Check
         Long userId = (Long) session.getAttribute("currentUserId");
         String userRole = (String) session.getAttribute("currentUserRole");
 
@@ -30,15 +29,13 @@ public class AvailabilityController {
             return "redirect:/login";
         }
 
-        // 2. Fetch Data
         Availability availability = availabilityService.getAvailability(userId, userRole);
         model.addAttribute("availability", availability);
 
-        // 3. Setup View Helpers
         model.addAttribute("days", new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"});
         model.addAttribute("timeSlots", generateTimeLabels());
 
-        return "availability"; // Refers to templates/availability.html
+        return "availability";
     }
 
     @PostMapping
@@ -50,7 +47,6 @@ public class AvailabilityController {
             return "redirect:/login";
         }
 
-        // 4. Save Updates
         availabilityService.updateAvailability(userId, userRole, availabilityForm.getTimeslots());
 
         return "redirect:/availability?success";
