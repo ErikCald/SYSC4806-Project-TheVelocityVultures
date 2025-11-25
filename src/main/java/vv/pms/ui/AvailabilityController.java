@@ -29,6 +29,10 @@ public class AvailabilityController {
             return "redirect:/login";
         }
 
+        if (!"STUDENT".equals(userRole) && !"PROFESSOR".equals(userRole)) {
+            return "redirect:/home";
+        }
+
         Availability availability = availabilityService.getAvailability(userId, userRole);
         model.addAttribute("availability", availability);
 
@@ -47,12 +51,15 @@ public class AvailabilityController {
             return "redirect:/login";
         }
 
+        if (!"STUDENT".equals(userRole) && !"PROFESSOR".equals(userRole)) {
+            return "redirect:/home";
+        }
+
         availabilityService.updateAvailability(userId, userRole, availabilityForm.getTimeslots());
 
         return "redirect:/availability?success";
     }
 
-    // Helper to generate the 32 time labels (08:00 - 04:00)
     private String[] generateTimeLabels() {
         String[] labels = new String[32];
         int startHour = 8;
@@ -65,10 +72,7 @@ public class AvailabilityController {
                 endMin = 0;
                 endHour++;
             }
-
-            // Format: "08:00-08:15"
             labels[i] = String.format("%02d:%02d-%02d:%02d", startHour, startMin, endHour, endMin);
-
             startMin += 15;
             if (startMin == 60) {
                 startMin = 0;
