@@ -1,6 +1,8 @@
 package vv.pms.project;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Set;
 
 @Entity
@@ -15,6 +17,7 @@ public class Project {
     private String title;
 
     @Lob // Used for storing large amounts of text
+    @NotBlank(message = "Description is required")
     @Column(nullable = false)
     private String description;
 

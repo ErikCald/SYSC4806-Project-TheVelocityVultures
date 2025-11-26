@@ -31,6 +31,7 @@
             </select>
         </div>
     </form>
+
     <div th:if="${currentUserRole == 'PROFESSOR'}">
         <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#projectModal"
                 onclick="openAddProjectModal()">Add Project</button>
@@ -68,13 +69,15 @@
 
             <li class="page-item" th:each="i : ${#numbers.sequence(0, projectsPage.totalPages - 1)}"
                 th:classappend="${i == projectsPage.number} ? 'active' : ''">
-                <a class="page-link" th:href="@{/projects(page=${i}, program=${selectedProgram}, status=${selectedStatus})}"
+                <a class="page-link"
+                   th:href="@{/projects(page=${i}, program=${selectedProgram}, status=${selectedStatus})}"
                    th:text="${i + 1}">
                 </a>
             </li>
 
             <li class="page-item" th:classappend="${projectsPage.hasNext()} ? '' : 'disabled'">
-                <a class="page-link" th:href="@{/projects(page=${projectsPage.number + 1}, program=${selectedProgram}, status=${selectedStatus})}">
+                <a class="page-link"
+                   th:href="@{/projects(page=${projectsPage.number + 1}, program=${selectedProgram}, status=${selectedStatus})}">
                     Next
                 </a>
             </li>
@@ -85,44 +88,48 @@
 <div class="modal fade" id="projectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form th:action="@{/projects}" th:object="${projectForm}" method="post">
+            <form th:action="@{/projects}" th:object="${projectForm}" method="post" id="projectForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="projectModalTitle">Add Project</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <input type="hidden" th:field="*{id}" id="projectId"/>
 
                     <div class="mb-3">
                         <label class="form-label">Title</label>
-                        <input type="text" th:field="*{title}" class="form-control" id="projectTitle"/>
-                        <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                        <input type="text" th:field="*{title}" class="form-control"
+                               id="projectTitle" required />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea th:field="*{description}" class="form-control" id="projectDescription"></textarea>
-                        <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        <textarea th:field="*{description}" class="form-control"
+                                  id="projectDescription" required></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Program Restrictions</label>
                         <div id="programCheckboxes" class="form-check" th:each="prog : ${programs}">
-                            <input class="form-check-input program-checkbox" type="checkbox" th:value="${prog}" th:id="'prog-' + ${prog}" th:name="programRestrictions"/>
+                            <input class="form-check-input program-checkbox" type="checkbox"
+                                   th:value="${prog}" th:id="'prog-' + ${prog}" th:name="programRestrictions"/>
                             <label class="form-check-label" th:for="'prog-' + ${prog}" th:text="${prog}"></label>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Team Size</label>
-                        <input type="number" th:field="*{requiredStudents}" class="form-control" id="projectRequiredStudents"/>
-                        <div class="text-danger" th:if="${#fields.hasErrors('requiredStudents')}" th:errors="*{requiredStudents}"></div>
+                        <input type="number" th:field="*{requiredStudents}" class="form-control"
+                               id="projectRequiredStudents" min="1" required />
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
+
             </form>
         </div>
     </div>
@@ -137,6 +144,28 @@
         document.getElementById('projectRequiredStudents').value = '';
         document.querySelectorAll('.program-checkbox').forEach(cb => cb.checked = false);
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const form = document.getElementById("projectForm");
+
+        // Enforce validation always — create OR edit
+        form.addEventListener("submit", (event) => {
+            const title = document.getElementById("projectTitle").value.trim();
+            const desc = document.getElementById("projectDescription").value.trim();
+            const size = document.getElementById("projectRequiredStudents").value.trim();
+
+            if (title === "" || desc === "" || size === "" || Number(size) < 1) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                alert("All fields (Title, Description, Team Size) are required.");
+                return false;
+            }
+        });
+
+    });
 </script>
+
 </body>
 </html>

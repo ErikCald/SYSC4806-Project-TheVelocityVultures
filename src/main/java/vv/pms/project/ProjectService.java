@@ -52,7 +52,10 @@ public class ProjectService {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title is required");
         }
-        Project p = new Project(title, description == null ? "" : description, programs, requiredStudents);
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description is required");
+        }
+        Project p = new Project(title, description, programs, requiredStudents);
         em.persist(p);
         return p;
     }
