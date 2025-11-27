@@ -107,6 +107,7 @@
             <!-- Report Download Portal (Professors OR Assigned Students) -->
             <div th:if="${currentUserIsAssignedProfessor or (currentUserIsStudent and currentUserAssigned)}">
                 <h3>Project Report Download Portal</h3>
+                <div th:if="${downloadError}" class="alert alert-danger" th:text="${downloadError}"></div>
                 <div th:if="${reportSubmission != null}">
                     <p>Report submitted on <span th:text="${#temporals.format(reportSubmission.submittedAt, 'MMMM d, yyyy h:mm a')}"></span></p>
                     <a th:href="@{/projects/download/{id}(id=${project.id})}" class="btn btn-success">Download Report</a>

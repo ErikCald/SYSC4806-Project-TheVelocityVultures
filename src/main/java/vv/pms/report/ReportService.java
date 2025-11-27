@@ -54,7 +54,7 @@ public class ReportService {
 
         // 3. Validate File
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("Failed to store empty file.");
+            throw new IllegalArgumentException("Cannot submit an empty file.");
         }
         if (!filename.toLowerCase().endsWith(".pdf")) {
              throw new IllegalArgumentException("Only PDF files are allowed.");
@@ -62,6 +62,11 @@ public class ReportService {
 
         try {
             // 4. Save File
+            // Ensure directory exists
+            if (!Files.exists(this.fileStorageLocation)) {
+                Files.createDirectories(this.fileStorageLocation);
+            }
+
             // Normalize filename
             String safeFilename = projectId + "_" + System.currentTimeMillis() + "_" + filename;
             Path targetLocation = this.fileStorageLocation.resolve(safeFilename);

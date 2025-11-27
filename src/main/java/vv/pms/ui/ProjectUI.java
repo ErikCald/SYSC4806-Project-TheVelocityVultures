@@ -347,13 +347,14 @@ public class ProjectUI {
     }
 
     @GetMapping("/download/{projectId}")
-    public ResponseEntity<Resource> downloadReport(@PathVariable Long projectId, HttpSession session) {
+    public Object downloadReport(@PathVariable Long projectId, HttpSession session, RedirectAttributes redirectAttributes) {
         // Security Check: Ensure user is authorized to download
         Object idObj = session.getAttribute("currentUserId");
         Object roleObj = session.getAttribute("currentUserRole");
         
         if (idObj == null || roleObj == null) {
-            return ResponseEntity.status(403).build();
+            redirectAttributes.addFlashAttribute("downloadError", "You must be logged in to download reports.");
+            return "redirect:/projects/details/" + projectId;
         }
 
         Long currentUserId;
@@ -361,7 +362,8 @@ public class ProjectUI {
              if (idObj instanceof Number) currentUserId = ((Number) idObj).longValue();
              else currentUserId = Long.parseLong(idObj.toString());
         } catch (Exception e) {
-             return ResponseEntity.status(403).build();
+             redirectAttributes.addFlashAttribute("downloadError", "Invalid session.");
+             return "redirect:/projects/details/" + projectId;
         }
         String role = roleObj.toString();
 
@@ -381,12 +383,14 @@ public class ProjectUI {
         }
 
         if (!isAuthorized) {
-            return ResponseEntity.status(403).build();
+            redirectAttributes.addFlashAttribute("downloadError", "You are not authorized to download this report.");
+            return "redirect:/projects/details/" + projectId;
         }
 
         Optional<ReportSubmission> reportOpt = reportService.getReportByProject(projectId);
         if (reportOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            redirectAttributes.addFlashAttribute("downloadError", "No report found for this project.");
+            return "redirect:/projects/details/" + projectId;
         }
         ReportSubmission report = reportOpt.get();
         try {
@@ -398,10 +402,12 @@ public class ProjectUI {
                         .contentType(MediaType.APPLICATION_PDF)
                         .body(resource);
             } else {
-                throw new RuntimeException("Could not read the file!");
+                redirectAttributes.addFlashAttribute("downloadError", "Failed to download file");
+                return "redirect:/projects/details/" + projectId;
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("downloadError", "Error: " + e.getMessage());
+            return "redirect:/projects/details/" + projectId;
         }
     }
 
