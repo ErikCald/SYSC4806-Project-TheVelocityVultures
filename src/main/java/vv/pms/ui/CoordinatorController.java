@@ -43,6 +43,9 @@ public class CoordinatorController {
             return "redirect:/login";
         }
 
+        model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
+        model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
+
         List<Student> allStudents = studentService.findAllStudents();
         List<Project> allProjects = projectService.getAllProjects();
 
