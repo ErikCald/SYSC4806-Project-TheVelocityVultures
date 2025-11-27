@@ -52,6 +52,8 @@ public class CoordinatorController {
 
         // Add deadline info
         model.addAttribute("currentDeadline", systemConfigService.getReportDeadline().orElse(null));
+        model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
+        model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
 
         List<Student> allStudents = studentService.findAllStudents();
         List<Project> allProjects = projectService.getAllProjects();
