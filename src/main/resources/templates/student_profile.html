@@ -9,7 +9,36 @@
 
 <div style="max-width: 600px; margin: 40px auto; padding: 20px; border:1px solid #ddd;">
 
-    <h2>My Profile</h2>
+    <div th:if="${hasTeam}" style="margin-bottom:20px;">
+        <h2>My Team</h2>
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="text-align:left; border-bottom: 1px solid #ddd; padding:6px;">Role</th>
+                <th style="text-align:left; border-bottom: 1px solid #ddd; padding:6px;">Name</th>
+                <th style="text-align:left; border-bottom: 1px solid #ddd; padding:6px;">Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="padding:6px;">Professor</td>
+                <td style="padding:6px;" th:text="${teamProfessor.name}">Professor Name</td>
+                <td style="padding:6px;"><a th:href="${'mailto:' + teamProfessor.email}" th:text="${teamProfessor.email}">prof@example.com</a></td>
+            </tr>
+            <tr th:each="member : ${teamStudents}">
+                <td style="padding:6px;" th:text="${member.id == currentStudentId} ? 'Me' : 'Student'">Student</td>
+                <td style="padding:6px;" th:text="${member.name}">Student Name</td>
+                <td style="padding:6px;"><a th:href="${'mailto:' + member.email}" th:text="${member.email}">student@example.com</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Update Profile</h2>
+
+    <div th:if="${!hasTeam}" style="margin-bottom:12px; color:#555;">
+        You are not currently assigned to a project
+    </div>
 
     <div th:if="${success}" style="color: green; margin-bottom: 10px;">
         <span th:text="${success}"></span>

@@ -139,6 +139,26 @@ public class AllocationService {
         return repository.findByProjectId(projectId);
     }
 
+    /**
+     * Finds the allocation that contains the given studentId (if any).
+     */
+    @Transactional(readOnly = true)
+    public Optional<ProjectAllocation> findAllocationByStudentId(Long studentId) {
+        return repository.findAll().stream()
+                .filter(a -> a.getAssignedStudentIds().contains(studentId))
+                .findFirst();
+    }
+
+    /**
+     * Returns the list of student IDs assigned to the given project.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<Long> findStudentsByProjectId(Long projectId) {
+        return repository.findByProjectId(projectId)
+                .map(ProjectAllocation::getAssignedStudentIds)
+                .orElse(java.util.List.of());
+    }
+
     @Transactional
     public void runBestEffortAllocation() {
         // Best-effort: for each project, ensure allocation and try to fill students
