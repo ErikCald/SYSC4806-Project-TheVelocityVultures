@@ -72,6 +72,49 @@
                 </tbody>
             </table>
             <p th:if="${project.assignedStudents.empty}">No students assigned yet.</p>
+
+            <hr/>
+
+            <!-- Report Submission Portal (Assigned Students Only) -->
+            <div th:if="${currentUserIsStudent and currentUserAssigned}">
+                <h3>Project Report Submission Portal</h3>
+                <p>
+                    <strong>Deadline: </strong>
+                    <span th:if="${reportDeadline != null}" th:text="${#temporals.format(reportDeadline, 'EEEE, MMMM d, yyyy ''at'' h:mm a')}"></span>
+                    <span th:if="${reportDeadline == null}">No deadline set</span>
+                </p>
+                <div th:if="${reportSubmission != null}" class="alert alert-info">
+                    Report submitted on <span th:text="${#temporals.format(reportSubmission.submittedAt, 'MMMM d, yyyy h:mm a')}"></span>
+                    <br>Filename: <span th:text="${reportSubmission.filename}"></span>
+                </div>
+
+                <div th:if="${uploadError}" class="alert alert-danger" th:text="${uploadError}"></div>
+                <div th:if="${uploadSuccess}" class="alert alert-success" th:text="${uploadSuccess}"></div>
+
+                <form th:action="@{/projects/upload}" method="post" enctype="multipart/form-data" class="mt-3">
+                    <input type="hidden" name="projectId" th:value="${project.id}"/>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload Report (PDF only)</label>
+                        <input class="form-control" type="file" id="file" name="file" accept=".pdf" th:disabled="${!canSubmit}">
+                    </div>
+                    <button type="submit" class="btn btn-primary" th:disabled="${!canSubmit}">Submit Report</button>
+                </form>
+                <div th:if="${!canSubmit}" class="text-danger fw-bold fs-5 mt-2" th:text="${submissionStatus}"></div>
+            </div>
+
+            <hr th:if="${currentUserIsStudent and currentUserAssigned}" />
+
+            <!-- Report Download Portal (Professors OR Assigned Students) -->
+            <div th:if="${currentUserIsAssignedProfessor or (currentUserIsStudent and currentUserAssigned)}">
+                <h3>Project Report Download Portal</h3>
+                <div th:if="${reportSubmission != null}">
+                    <p>Report submitted on <span th:text="${#temporals.format(reportSubmission.submittedAt, 'MMMM d, yyyy h:mm a')}"></span></p>
+                    <a th:href="@{/projects/download/{id}(id=${project.id})}" class="btn btn-success">Download Report</a>
+                </div>
+                <div th:if="${reportSubmission == null}">
+                    <p class="text-muted">No report submitted yet.</p>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-4">

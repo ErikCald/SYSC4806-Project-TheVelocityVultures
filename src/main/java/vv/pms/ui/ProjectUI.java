@@ -23,6 +23,19 @@ import vv.pms.student.StudentService;
 import vv.pms.ui.records.ProjectDetailsDTO;
 import vv.pms.ui.records.ProjectForm;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import vv.pms.report.ReportService;
+import vv.pms.report.ReportSubmission;
+import vv.pms.report.SystemConfigService;
+
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,16 +46,22 @@ public class ProjectUI {
     private final ProjectService projectService;
     private final ProfessorService professorService;
     private final AllocationService allocationService;
-    private final StudentService studentService;    //
+    private final StudentService studentService;
+    private final ReportService reportService;
+    private final SystemConfigService systemConfigService;
 
     public ProjectUI(ProjectService projectService,
                      ProfessorService professorService,
                      AllocationService allocationService,
-                     StudentService studentService) {
+                     StudentService studentService,
+                     ReportService reportService,
+                     SystemConfigService systemConfigService) {
         this.projectService = projectService;
         this.professorService = professorService;
         this.allocationService = allocationService;
         this.studentService = studentService;
+        this.reportService = reportService;
+        this.systemConfigService = systemConfigService;
     }
 
     private record ProjectSummary(
@@ -186,13 +205,47 @@ public class ProjectUI {
             }
         }
 
+        boolean currentUserIsAssignedProfessor = false;
+        if (currentUserId != null && professorDTO.id() != null && currentUserId.equals(professorDTO.id())) {
+             Object r = session.getAttribute("currentUserRole");
+             if (r != null && "PROFESSOR".equalsIgnoreCase(r.toString())) {
+                 currentUserIsAssignedProfessor = true;
+             }
+        }
+
         // Add all data to the Model
         model.addAttribute("project", detailsDTO); // For display
         model.addAttribute("projectForm", form); // For the Edit modal
         model.addAttribute("programs", Program.values()); // For the Edit modal
         model.addAttribute("currentUserIsStudent", currentUserIsStudent);
         model.addAttribute("currentUserAssigned", currentUserAssigned);
+        model.addAttribute("currentUserIsAssignedProfessor", currentUserIsAssignedProfessor);
         model.addAttribute("spotsAvailable", spotsAvailable);
+        model.addAttribute("reportDeadline", systemConfigService.getReportDeadline().orElse(null));
+
+        // Report Info
+        Optional<ReportSubmission> reportOpt = reportService.getReportByProject(id);
+        model.addAttribute("reportSubmission", reportOpt.orElse(null));
+
+        String submissionStatus = "Not assigned to a project";
+        boolean canSubmit = false;
+        if (currentUserIsStudent && currentUserId != null) {
+             submissionStatus = reportService.getSubmissionStatus(currentUserId);
+             canSubmit = reportService.canStudentSubmit(currentUserId);
+             // Also check if student is assigned to THIS project
+             if (canSubmit) {
+                 boolean assignedToThis = false;
+                 for (ProjectDetailsDTO.StudentDTO s : studentDTOs) {
+                    if (currentUserId.equals(s.id())) { assignedToThis = true; break; }
+                 }
+                 if (!assignedToThis) {
+                     canSubmit = false;
+                     submissionStatus = "You must be assigned to this project to submit your report";
+                 }
+             }
+        }
+        model.addAttribute("submissionStatus", submissionStatus);
+        model.addAttribute("canSubmit", canSubmit);
 
         return "project-details";
     }
@@ -262,6 +315,93 @@ public class ProjectUI {
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("applyError", e.getMessage());
             return "redirect:/projects/details/" + projectId;
+        }
+    }
+
+    @PostMapping("/upload")
+    public String uploadReport(@RequestParam("projectId") Long projectId,
+                               @RequestParam("file") MultipartFile file,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        Object idObj = session.getAttribute("currentUserId");
+        if (idObj == null) {
+             redirectAttributes.addFlashAttribute("uploadError", "You must be logged in.");
+             return "redirect:/projects/details/" + projectId;
+        }
+        Long studentId;
+        try {
+            if (idObj instanceof Number) studentId = ((Number) idObj).longValue();
+            else studentId = Long.parseLong(idObj.toString());
+        } catch (Exception e) {
+             redirectAttributes.addFlashAttribute("uploadError", "Invalid user session.");
+             return "redirect:/projects/details/" + projectId;
+        }
+
+        try {
+            reportService.submitReport(projectId, studentId, file.getOriginalFilename(), file);
+            redirectAttributes.addFlashAttribute("uploadSuccess", "Report submitted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("uploadError", e.getMessage());
+        }
+        return "redirect:/projects/details/" + projectId;
+    }
+
+    @GetMapping("/download/{projectId}")
+    public ResponseEntity<Resource> downloadReport(@PathVariable Long projectId, HttpSession session) {
+        // Security Check: Ensure user is authorized to download
+        Object idObj = session.getAttribute("currentUserId");
+        Object roleObj = session.getAttribute("currentUserRole");
+        
+        if (idObj == null || roleObj == null) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Long currentUserId;
+        try {
+             if (idObj instanceof Number) currentUserId = ((Number) idObj).longValue();
+             else currentUserId = Long.parseLong(idObj.toString());
+        } catch (Exception e) {
+             return ResponseEntity.status(403).build();
+        }
+        String role = roleObj.toString();
+
+        boolean isAuthorized = false;
+        Optional<ProjectAllocation> allocationOpt = allocationService.findAllocationByProjectId(projectId);
+        
+        if (allocationOpt.isPresent()) {
+            ProjectAllocation allocation = allocationOpt.get();
+            // Allow if assigned professor
+            if ("PROFESSOR".equalsIgnoreCase(role) && allocation.getProfessorId().equals(currentUserId)) {
+                isAuthorized = true;
+            }
+            // Allow if assigned student
+            if ("STUDENT".equalsIgnoreCase(role) && allocation.getAssignedStudentIds().contains(currentUserId)) {
+                isAuthorized = true;
+            }
+        }
+
+        if (!isAuthorized) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Optional<ReportSubmission> reportOpt = reportService.getReportByProject(projectId);
+        if (reportOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ReportSubmission report = reportOpt.get();
+        try {
+            Path path = Paths.get(report.getFilePath());
+            Resource resource = new UrlResource(path.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + report.getFilename() + "\"")
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(resource);
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
         }
     }
 
