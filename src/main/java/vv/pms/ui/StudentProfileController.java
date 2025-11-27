@@ -112,13 +112,12 @@ public class StudentProfileController {
                     form.getEmail(),
                     form.getProgram()
             );
-
-            model.addAttribute("success", "Profile updated successfully!");
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
+            model.addAttribute("programs", Program.values());
+            return "student_profile";
         }
 
-        model.addAttribute("programs", Program.values());
-        return "student_profile";
+        return "redirect:/student/profile";
     }
 }
