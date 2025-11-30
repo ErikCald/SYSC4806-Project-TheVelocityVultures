@@ -1,6 +1,6 @@
 package vv.pms.project;
 
-import org.springframework.context.annotation.Lazy; //IMPORT TO FIX CIRCULAR DEPENDENCY ISSUE
+import org.springframework.context.annotation.Lazy; // <--- 1. IMPORT LAZY
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import vv.pms.allocation.AllocationService;
-import vv.pms.allocation.ProjectAllocation;
 import vv.pms.project.internal.ProjectRepository;
 
 import java.util.HashMap;
@@ -24,35 +22,32 @@ import java.util.Optional;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final AllocationService allocationService;
+    private final ProjectOwnershipGateway allocationGateway;
 
     @PersistenceContext
     private EntityManager em;
 
-    // Added @Lazy to fix circular dependency loop error. This tells Spring: "Start ProjectService now,
-    // but wait to create AllocationService until we actually use it."
-    public ProjectService(ProjectRepository projectRepository, @Lazy AllocationService allocationService) {
+    // 2. ADD @Lazy HERE.
+    // This allows the app to start up without crashing,
+    // while the Interface keeps the "Architecture Test" happy.
+    public ProjectService(ProjectRepository projectRepository,
+                          @Lazy ProjectOwnershipGateway allocationGateway) {
         this.projectRepository = projectRepository;
-        this.allocationService = allocationService;
+        this.allocationGateway = allocationGateway;
     }
 
-    /** Helper method to check authorization */
     private void checkModificationAuthorization(Long projectId, Long requestingProfessorId, boolean isCoordinator) {
-        // Coordinators bypass all checks
         if (isCoordinator) {
             return;
         }
 
-        // Retrieve allocation to find the owner
-        Optional<ProjectAllocation> allocation = allocationService.findAllocationByProjectId(projectId);
+        Optional<Long> ownerId = allocationGateway.findProjectOwnerId(projectId);
 
-        if (allocation.isEmpty()) {
-            // No owner assigned: Only Coordinator can modify
+        if (ownerId.isEmpty()) {
             throw new UnauthorizedAccessException("Project has no owner. Only Coordinators can modify it.");
         }
 
-        // Check if requester matches the owner
-        if (!allocation.get().getProfessorId().equals(requestingProfessorId)) {
+        if (!ownerId.get().equals(requestingProfessorId)) {
             throw new UnauthorizedAccessException("Only the Project Owner or a Coordinator can modify this project.");
         }
     }
@@ -78,29 +73,21 @@ public class ProjectService {
 
         Project p = new Project(title, description, programs, requiredStudents);
         em.persist(p);
-
-        // Flush to ensure Project ID is generated before allocation
         em.flush();
 
-        // Modulith Requirement: Call AllocationService Public API
-        allocationService.assignProfessorToProject(p.getId(), professorId);
+        allocationGateway.assignProjectOwner(p.getId(), professorId);
 
         return p;
     }
 
-    /** Update an existing project with Auth Check */
     public Project updateProject(Project project, Long requestingProfessorId, boolean isCoordinator) {
         if (project.getId() == null) throw new IllegalArgumentException("Project id required for update");
-
         checkModificationAuthorization(project.getId(), requestingProfessorId, isCoordinator);
-
         return em.merge(project);
     }
 
-    /** Delete by id with Auth Check */
     public void deleteProject(Long id, Long requestingProfessorId, boolean isCoordinator) {
         checkModificationAuthorization(id, requestingProfessorId, isCoordinator);
-
         Project p = em.find(Project.class, id);
         if (p != null) {
             em.remove(p);
@@ -109,13 +96,10 @@ public class ProjectService {
         }
     }
 
-    /** Archive project with Auth Check */
     public void archiveProject(Long id, Long requestingProfessorId, boolean isCoordinator) {
         checkModificationAuthorization(id, requestingProfessorId, isCoordinator);
-
         Project p = em.find(Project.class, id);
         if (p == null) throw new IllegalArgumentException("Project not found: " + id);
-
         p.archive();
         em.merge(p);
     }
