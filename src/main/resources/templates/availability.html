@@ -46,7 +46,7 @@
                 <tbody>
                 <tr th:each="timeLabel, i : ${timeSlots}">
 
-                    <td th:text="${timeLabel}" class="fw-bold">08:00</td>
+                    <td th:text="${timeLabel}" class="fw-bold"></td>
 
                     <td th:each="day, j : ${days}"
                         th:with="isAvailable=*{timeslots[__${j.index}__][__${i.index}__]}"
@@ -56,8 +56,8 @@
                                 th:name="|timeslots[${j.index}][${i.index}]|">
 
                             <option value="false" th:selected="${!isAvailable}">&#10060;</option>
-
                             <option value="true" th:selected="${isAvailable}">&#9989;</option>
+
                         </select>
                     </td>
                 </tr>

@@ -20,6 +20,14 @@
                    style="margin-right:8px;"
                    th:if="${currentUserRole == 'STUDENT' or currentUserRole == 'PROFESSOR'}">Availability</a>
 
+
+                <a th:href="@{/presentations}"
+                   style="margin-right:8px;"
+                   th:if="${currentUserRole == 'COORDINATOR'}">
+                    Presentations
+                </a>
+
+
             </div>
 
             <div>

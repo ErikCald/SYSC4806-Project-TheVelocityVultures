@@ -61,24 +61,28 @@ public class AvailabilityController {
     }
 
     private String[] generateTimeLabels() {
-        String[] labels = new String[32];
-        int startHour = 8;
-        int startMin = 0;
+        String[] labels = new String[16];
+        int hour = 8;
+        int min = 0;
 
-        for (int i = 0; i < 32; i++) {
-            int endMin = startMin + 15;
-            int endHour = startHour;
-            if (endMin == 60) {
-                endMin = 0;
+        for (int i = 0; i < 16; i++) {
+            int endMin = min + 30;
+            int endHour = hour;
+
+            if (endMin >= 60) {
+                endMin -= 60;
                 endHour++;
             }
-            labels[i] = String.format("%02d:%02d-%02d:%02d", startHour, startMin, endHour, endMin);
-            startMin += 15;
-            if (startMin == 60) {
-                startMin = 0;
-                startHour++;
+
+            labels[i] = String.format("%02d:%02d-%02d:%02d", hour, min, endHour, endMin);
+
+            min += 30;
+            if (min >= 60) {
+                min -= 60;
+                hour++;
             }
         }
+
         return labels;
     }
 }
