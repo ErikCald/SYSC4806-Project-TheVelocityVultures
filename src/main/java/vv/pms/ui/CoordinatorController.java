@@ -10,9 +10,13 @@ import vv.pms.project.Program;
 import vv.pms.student.StudentService;
 import vv.pms.student.Student;
 import vv.pms.allocation.AllocationService;
+import vv.pms.report.SystemConfigService;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Controller
 @RequestMapping("/coordinator")
@@ -21,13 +25,16 @@ public class CoordinatorController {
     private final StudentService studentService;
     private final ProjectService projectService;
     private final AllocationService allocationService;
+    private final SystemConfigService systemConfigService;
 
     public CoordinatorController(StudentService studentService,
                                  ProjectService projectService,
-                                 AllocationService allocationService) {
+                                 AllocationService allocationService,
+                                 SystemConfigService systemConfigService) {
         this.studentService = studentService;
         this.projectService = projectService;
         this.allocationService = allocationService;
+        this.systemConfigService = systemConfigService;
     }
 
     @GetMapping
@@ -43,6 +50,8 @@ public class CoordinatorController {
             return "redirect:/login";
         }
 
+        // Add deadline info
+        model.addAttribute("currentDeadline", systemConfigService.getReportDeadline().orElse(null));
         model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
         model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
 
@@ -97,6 +106,12 @@ public class CoordinatorController {
         model.addAttribute("selectedProgram", program);
         model.addAttribute("selectedProjectId", projectId);
         return "coordinator";
+    }
+
+    @PostMapping("/set-deadline")
+    public String setDeadline(@RequestParam("deadline") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime deadline) {
+        systemConfigService.setReportDeadline(deadline);
+        return "redirect:/coordinator";
     }
 
 }

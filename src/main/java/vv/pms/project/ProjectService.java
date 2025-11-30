@@ -47,6 +47,14 @@ public class ProjectService {
         return Optional.ofNullable(p);
     }
 
+    /** Find multiple projects by IDs */
+    public List<Project> findProjectsByIds(java.util.Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return projectRepository.findAllById(ids);
+    }
+
     /** Create + persist new project */
     public Project addProject(String title, String description, java.util.Set<Program> programs, int requiredStudents) {
         if (title == null || title.isBlank()) {
