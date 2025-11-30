@@ -104,7 +104,11 @@ public class ProjectWebController {
     }
 
     @GetMapping("/projects")
-    public String listProjects(Model model) {
+    public String listProjects(HttpSession session, Model model) {
+
+        model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
+        model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
+
         model.addAttribute("projects", projectService.getAllProjects());
         model.addAttribute("currentProject", new Project());
         return "projects";
