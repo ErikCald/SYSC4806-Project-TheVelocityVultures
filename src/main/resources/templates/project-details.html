@@ -17,20 +17,25 @@
     <hr/>
 
     <div class="mb-3">
-        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#projectModal">
-            Edit Project
-        </button>
 
-        <form th:action="@{/projects/archive}" method="post" class="d-inline">
-            <input type="hidden" name="id" th:value="${project.id}"/>
-            <button type="submit" class="btn btn-secondary">Archive</button>
-        </form>
+        <th:block th:if="${session.currentUserRole == 'COORDINATOR' or (session.currentUserRole == 'PROFESSOR' and project.assignedProfessorId != null and project.assignedProfessorId == session.currentUserId)}">
 
-        <form th:action="@{/projects/delete}" method="post" class="d-inline" th:if="${!currentUserIsStudent}">
-            <input type="hidden" name="id" th:value="${project.id}"/>
-            <button type="submit" class="btn btn-danger"
-                    onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
-        </form>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#projectModal">
+                Edit Project
+            </button>
+
+            <form th:action="@{/projects/archive}" method="post" class="d-inline">
+                <input type="hidden" name="id" th:value="${project.id}"/>
+                <button type="submit" class="btn btn-secondary">Archive</button>
+            </form>
+
+            <form th:action="@{/projects/delete}" method="post" class="d-inline">
+                <input type="hidden" name="id" th:value="${project.id}"/>
+                <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
+            </form>
+
+        </th:block>
 
         <div th:if="${currentUserIsStudent}" class="d-inline ms-2">
             <form th:action="@{/projects/apply}" method="post" th:if="${!currentUserAssigned and spotsAvailable > 0}" class="d-inline">
@@ -60,7 +65,7 @@
             <hr/>
 
             <h3>Assigned Students</h3>
-            <table class="table" th:if="${!project.assignedStudents.empty}">
+            <table class="table" th:if="${!project.assignedStudents.isEmpty()}">
                 <thead><tr><th>Name</th><th>Student ID</th><th>Email</th><th>Program</th></tr></thead>
                 <tbody>
                 <tr th:each="student : ${project.assignedStudents}">
@@ -71,7 +76,7 @@
                 </tr>
                 </tbody>
             </table>
-            <p th:if="${project.assignedStudents.empty}">No students assigned yet.</p>
+            <p th:if="${project.assignedStudents.isEmpty()}">No students assigned yet.</p>
         </div>
 
         <div class="col-md-4">
@@ -97,7 +102,6 @@
 </div>
 
 
-<!-- EDIT MODAL -->
 <div class="modal fade" id="projectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -152,10 +156,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-
         const form = document.querySelector("#projectModal form");
-
-        // HTML5 validation
         form.addEventListener("submit", function (event) {
             if (!form.checkValidity()) {
                 event.preventDefault();
@@ -163,11 +164,6 @@
             }
             form.classList.add("was-validated");
         });
-
-        // Only reopen modal if projectForm exists (editing)
-        const editing = false;
-
-
     });
 </script>
 

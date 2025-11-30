@@ -141,7 +141,7 @@ public class ProjectDetailController {
                 project.getStatus().toString(), //
                 professorDTO,
                 studentDTOs,
-                spotsAvailable
-        );
+                spotsAvailable,
+                allocation.getProfessorId());
     }
 }
