@@ -138,6 +138,23 @@ public class AllocationService implements ProjectOwnershipGateway {
                 .orElse(java.util.List.of());
     }
 
+    /**
+     * Returns the list of projects assigned to the given professor.
+     */
+    @Transactional(readOnly = true)
+    public List<Project> findProjectsByProfessorId(Long professorId) {
+        List<ProjectAllocation> allocations = repository.findByProfessorId(professorId);
+        Set<Long> projectIds = allocations.stream()
+                .map(ProjectAllocation::getProjectId)
+                .collect(Collectors.toSet());
+        
+        if (projectIds.isEmpty()) {
+            return List.of();
+        }
+        
+        return projectService.findProjectsByIds(projectIds);
+    }
+
     @Transactional
     public void runBestEffortAllocation() {
         List<Project> projects = projectService.findAllProjects();

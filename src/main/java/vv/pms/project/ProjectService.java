@@ -66,10 +66,24 @@ public class ProjectService {
         return Optional.ofNullable(p);
     }
 
+    /** Find multiple projects by IDs */
+    public List<Project> findProjectsByIds(java.util.Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return projectRepository.findAllById(ids);
+    }
+
     public Project addProject(String title, String description, java.util.Set<Program> programs, int requiredStudents, Long professorId) {
-        if (title == null || title.isBlank()) throw new IllegalArgumentException("Title is required");
-        if (description == null || description.isBlank()) throw new IllegalArgumentException("Description is required");
-        if (professorId == null) throw new IllegalArgumentException("Professor ID is required to create a project");
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description is required");
+        }
+        if (professorId == null) {
+            throw new IllegalArgumentException("Professor ID is required to create a project");
+        }
 
         Project p = new Project(title, description, programs, requiredStudents);
         em.persist(p);

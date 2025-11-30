@@ -79,6 +79,7 @@ public class StudentProfileController {
                 model.addAttribute("teamStudents", teamStudents);
             model.addAttribute("currentStudentId", studentId);
             model.addAttribute("hasTeam", true);
+            model.addAttribute("projectId", projectId);
         }, () -> {
             model.addAttribute("hasTeam", false);
         });
