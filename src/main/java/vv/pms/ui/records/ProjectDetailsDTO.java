@@ -14,8 +14,9 @@ public record ProjectDetailsDTO(
         String status,
         ProfessorDTO professor,
         List<StudentDTO> assignedStudents,
-        int availability
-) {
+        int availability,
+        Long assignedProfessorId //added
+        ) {
 
     /**
      * A DTO representing a Professor for the UI.

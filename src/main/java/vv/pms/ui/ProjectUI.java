@@ -39,6 +39,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//import vv.pms.project.UnauthorizedAccessException;
+
 @Controller
 @RequestMapping("/projects")
 public class ProjectUI {
@@ -128,16 +130,18 @@ public class ProjectUI {
         Project project = projectService.findProjectById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID: " + id));
 
-        // Find the Allocation (but DON'T throw an error if it's missing)
+        // Find the Allocation
         Optional<ProjectAllocation> allocationOpt = allocationService.findAllocationByProjectId(id);
 
         ProjectDetailsDTO.ProfessorDTO professorDTO;
         List<ProjectDetailsDTO.StudentDTO> studentDTOs;
         int spotsAvailable;
+        Long assignedProfessorId = null; // <--- 1. Initialize variable
 
         if (allocationOpt.isPresent()) {
             // Allocation EXISTS
             ProjectAllocation allocation = allocationOpt.get();
+            assignedProfessorId = allocation.getProfessorId(); // <--- 2. Capture the ID
 
             // Get Professor
             Professor profEntity = professorService.findProfessorById(allocation.getProfessorId())
@@ -159,17 +163,23 @@ public class ProjectUI {
 
         } else {
             // Allocation is MISSING
-            // Create "empty" or "unassigned" DTOs
             professorDTO = new ProjectDetailsDTO.ProfessorDTO(null, "Unassigned", "");
             studentDTOs = Collections.emptyList();
             spotsAvailable = project.getRequiredStudents();
+            assignedProfessorId = null; // Ensure it's null if no allocation
         }
 
         // Create the final DTO
         ProjectDetailsDTO detailsDTO = new ProjectDetailsDTO(
-                project.getId(), project.getTitle(), project.getDescription(),
+                project.getId(),
+                project.getTitle(),
+                project.getDescription(),
                 project.getStatus().toString(),
-                professorDTO, studentDTOs, spotsAvailable);
+                professorDTO,
+                studentDTOs,
+                spotsAvailable,
+                assignedProfessorId // <--- 3. Pass it to the constructor
+        );
 
         // Create the ProjectForm for the Edit Modal
         ProjectForm form = new ProjectForm(
@@ -180,7 +190,7 @@ public class ProjectUI {
                 project.getRequiredStudents()
         );
 
-        // Determine current user's assignment state (backend-driven for thymeleaf)
+        // Determine current user's assignment state
         boolean currentUserIsStudent = false;
         Long currentUserId = null;
         if (session != null && session.getAttribute("currentUserRole") != null) {
@@ -214,9 +224,9 @@ public class ProjectUI {
         }
 
         // Add all data to the Model
-        model.addAttribute("project", detailsDTO); // For display
-        model.addAttribute("projectForm", form); // For the Edit modal
-        model.addAttribute("programs", Program.values()); // For the Edit modal
+        model.addAttribute("project", detailsDTO);
+        model.addAttribute("projectForm", form);
+        model.addAttribute("programs", Program.values());
         model.addAttribute("currentUserIsStudent", currentUserIsStudent);
         model.addAttribute("currentUserAssigned", currentUserAssigned);
         model.addAttribute("currentUserIsAssignedProfessor", currentUserIsAssignedProfessor);
@@ -318,7 +328,20 @@ public class ProjectUI {
         }
     }
 
-    @PostMapping("/upload")
+    // --- HELPER METHODS FOR SESSION ---
+    private Long getCurrentUserId(HttpSession session) {
+        Object idObj = session.getAttribute("currentUserId");
+        if (idObj instanceof Number) return ((Number) idObj).longValue();
+        if (idObj != null) return Long.parseLong(idObj.toString());
+        return null;
+    }
+
+    private boolean isCoordinator(HttpSession session) {
+        Object roleObj = session.getAttribute("currentUserRole");
+        return roleObj != null && "COORDINATOR".equalsIgnoreCase(roleObj.toString());
+    }
+
+     @PostMapping("/upload")
     public String uploadReport(@RequestParam("projectId") Long projectId,
                                @RequestParam("file") MultipartFile file,
                                HttpSession session,
@@ -413,7 +436,11 @@ public class ProjectUI {
 
     @PostMapping
     public String handleProjectForm(@Valid @ModelAttribute("projectForm") ProjectForm form,
-                                    BindingResult result, Model model) {
+                                    BindingResult result, Model model, HttpSession session) {
+        // Security Check
+        Long currentUserId = getCurrentUserId(session);
+        if (currentUserId == null) return "redirect:/login"; // Or handle error
+
         if (result.hasErrors()) {
             model.addAttribute("projectsPage", projectService.findProjects(null, null, Pageable.unpaged()));
             model.addAttribute("programs", Program.values());
@@ -422,39 +449,48 @@ public class ProjectUI {
         }
 
         if (form.getId() == null) {
+            // CREATE: Pass currentUserId as the owner
             Project p = projectService.addProject(
                     form.getTitle(),
                     form.getDescription(),
                     new HashSet<>(form.getProgramRestrictions()),
-                    form.getRequiredStudents()
+                    form.getRequiredStudents(),
+                    currentUserId // <-- ADDED: Assign Owner
             );
             return "redirect:/projects/details/" + p.getId();
 
         } else {
+            // UPDATE: Check Authorization via Service
             Project p = projectService.findProjectById(form.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Project not found: " + form.getId()));
+
             p.setTitle(form.getTitle());
             p.setDescription(form.getDescription());
             p.setRequiredStudents(form.getRequiredStudents());
             p.setProgramRestrictions(new HashSet<>(form.getProgramRestrictions()));
-            projectService.updateProject(p);
+
+            // Pass requesting ID and Coordinator status
+            projectService.updateProject(p, currentUserId, isCoordinator(session));
 
             return "redirect:/projects/details/" + p.getId();
         }
     }
 
     @PostMapping("/delete")
-    public String deleteProject(@RequestParam Long id) {
-        projectService.deleteProject(id);
+    public String deleteProject(@RequestParam Long id, HttpSession session) {
+        Long currentUserId = getCurrentUserId(session);
+        if (currentUserId == null) return "redirect:/login";
+
+        projectService.deleteProject(id, currentUserId, isCoordinator(session));
         return "redirect:/projects";
     }
 
     @PostMapping("/archive")
-    public String archiveProject(@RequestParam Long id) {
-        projectService.archiveProject(id);
+    public String archiveProject(@RequestParam Long id, HttpSession session) {
+        Long currentUserId = getCurrentUserId(session);
+        if (currentUserId == null) return "redirect:/login";
+
+        projectService.archiveProject(id, currentUserId, isCoordinator(session));
         return "redirect:/projects/details/" + id;
     }
 }
-
-
-

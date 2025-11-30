@@ -35,25 +35,23 @@ class AllocationServiceIntegrationTest {
 
     @Test
     void assignProfessorToProject_duplicate_throws() {
-        // Arrange
+        //create the Professor FIRST (We need the ID)
+        Professor professor = professorService.addProfessor("Prof Integration", "integration@example.com");
+
         Project project = projectService.addProject(
                 "Integration Test Project",
                 "Test Description",
                 Set.of(Program.SOFTWARE_ENGINEERING),
-                2
+                2,
+                professor.getId() //added the required 5th argument
         );
 
-        Professor professor = professorService.addProfessor("Prof Integration", "integration@example.com");
-
-        // First allocation succeeds
-        allocationService.assignProfessorToProject(project.getId(), professor.getId());
-
-        // Reload allocation from DB to verify
+        //verify allocation automatic
         ProjectAllocation allocation = allocationRepository.findByProjectId(project.getId())
-                .orElseThrow(() -> new AssertionError("Allocation should exist"));
+                .orElseThrow(() -> new AssertionError("Allocation should have been created by addProject"));
         assertEquals(professor.getId(), allocation.getProfessorId());
 
-        // Second allocation should throw
+        //Attempting to assign the same professor again should throw the exception
         assertThrows(AllocationService.AllocationStateException.class, () ->
                 allocationService.assignProfessorToProject(project.getId(), professor.getId())
         );
