@@ -25,7 +25,7 @@ A web-based system designed to manage 4th-year project topics, student applicati
 ## UML Diagrams 
 
 #### Module Diagram
-<img width="478" height="683" alt="ModulesDiagram" src="https://github.com/user-attachments/assets/e14b0a7e-4347-4501-a9ea-8d088d4f9edc" />
+<img width="1034" height="817" alt="components-Application" src="https://github.com/user-attachments/assets/0adcd5ed-c5d7-4c79-a708-77961efd7eb4" />
 
 #### Database Schema Diagram
 
