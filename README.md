@@ -28,6 +28,7 @@ A web-based system designed to manage 4th-year project topics, student applicati
 <img width="1034" height="817" alt="components-Application" src="https://github.com/user-attachments/assets/0adcd5ed-c5d7-4c79-a708-77961efd7eb4" />
 
 #### Database Schema Diagram
+<img width="1543" height="531" alt="database-schema-m3-sysc-4806" src="https://github.com/user-attachments/assets/a4d18584-b337-434f-bee1-0726424e6037" />
 
 #### Class UML Diagrams
 <img width="1634" height="614" alt="student_class_diagram" src="https://github.com/user-attachments/assets/4f8fbfbc-5fec-4a24-a359-bef9507dbc8d" />
@@ -46,8 +47,9 @@ Below is the snapshot of our board at the end of Milestone 2:
 <img width="1910" height="863" alt="KanbanSS" src="https://github.com/user-attachments/assets/002cd4da-5b3d-4826-9938-5274f7b695d6" />
 
 ## 📌 Kanban Board Snapshot (Milestone 3) 
-Below is the snapshot of our board for our plan for Milestone 3:
-<img width="1803" height="719" alt="image" src="https://github.com/user-attachments/assets/659353e4-4c17-4201-a9a9-210aab63ce65" />
+Below is the snapshot of our board for our plan for Milestone 3 (as of 12:56am on Dec 1):
+<img width="1813" height="934" alt="image" src="https://github.com/user-attachments/assets/517088b2-9f85-4cda-a5ba-f3b3f4aace13" />
+
 
 ## Contributors
 - Darren Wallace  
