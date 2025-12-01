@@ -1,6 +1,10 @@
 # 4th Year Project Management System
 A web-based system designed to manage 4th-year project topics, student applications, oral presentations, and final report submissions. This system streamlines project coordination for professors, students, and the 4th-year project coordinator.  
 
+## Project Hosted on Azure
+Project is hosted on azure and available at this link:
+https://sysc4806-lab5-erik-v2-gwhkcfeeckapb0e8.canadacentral-01.azurewebsites.net/home
+
 ## Milestone 3 Features
 
 - Enforce report submission endpoint + deadline enforcement https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/37  
