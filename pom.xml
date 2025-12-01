@@ -132,6 +132,62 @@
                     </execution>
 
                     <execution>
+                        <id>auth-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>auth_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.auth</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>availability-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>availablility_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.availability</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>coordinator-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>coordinator_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.coordinator</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>presentation-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>presentation_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.presentation</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>professor-diagram</id>
                         <phase>compile</phase>
                         <goals>
@@ -155,6 +211,20 @@
                             <outputFilename>project_class_diagram.puml</outputFilename>
                             <scanPackages>
                                 <scanPackage>vv.pms.project</scanPackage>
+                            </scanPackages>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>report-diagram</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFilename>auth_class_diagram.puml</outputFilename>
+                            <scanPackages>
+                                <scanPackage>vv.pms.auth</scanPackage>
                             </scanPackages>
                         </configuration>
                     </execution>
@@ -187,19 +257,7 @@
                         </configuration>
                     </execution>
 
-                    <execution>
-                        <id>auth-diagram</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <outputFilename>auth_class_diagram.puml</outputFilename>
-                            <scanPackages>
-                                <scanPackage>vv.pms.auth</scanPackage>
-                            </scanPackages>
-                        </configuration>
-                    </execution>
+
                 </executions>
             </plugin>
 
