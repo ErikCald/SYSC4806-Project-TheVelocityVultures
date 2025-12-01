@@ -1,6 +1,21 @@
 # 4th Year Project Management System
 A web-based system designed to manage 4th-year project topics, student applications, oral presentations, and final report submissions. This system streamlines project coordination for professors, students, and the 4th-year project coordinator.  
 
+
+## Milestone 3 Features
+
+- Enforce report submission endpoint + deadline enforcement https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/37  
+- Create Coordinator account type and coordinator home page https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/49  
+- Define behaviour for projects with no description https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/51  
+- Remove student ability to delete projects https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/52  
+- Fix login header not updating after username change https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/53  
+- Professor and student availability input for oral presentations https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/56  
+- Room Assignment Module for oral presentations https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/57  
+- Project ownership rules & edit restrictions https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/58  
+- Student Profile: Add team information section https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/59  
+- Fix coordinator header behaviour when logged in https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/67  
+- Integration tests for new Milestone 3 features https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/61  
+
 ## Milestone 2 Features
 - Project Creation UI for Profs https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/18
 - Project Detail and availability, and search UI https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/32
@@ -16,13 +31,11 @@ A web-based system designed to manage 4th-year project topics, student applicati
 - Azure Hosting https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/4
 - Simple Professor's Web UI https://github.com/ErikCald/SYSC4806-Project-TheVelocityVultures/issues/3
 
-*(Future milestones will add more functionality.)*
-
-## Full Project Vision
+## Full Project
 
 ### For Professors
 - Add, delete, or archive 4th-year project topics.  
-- Enter project details including description, program restrictions, and the number of students required.  
+- Enter project details, including description, program restrictions, and the number of students required.  
 - Track applications to their projects and view which students have applied.  
 - Enter availability for oral presentations.  
 
@@ -44,112 +57,20 @@ A web-based system designed to manage 4th-year project topics, student applicati
 - Web interface built with HTML and styled using CSS for an intuitive user experience.  
 - Java backend handling business logic and data management.
 
-## 🚀 Sprint Summary
-
-### 1. Authentication & User Accounts
-- Implement email-based login for Students and Professors  
-- Add session-based role tracking (Student / Professor)  
-- Create a signup flow with validation  
-- Build login/signup UI pages (Thymeleaf)
-
-**Deliverables:**  
-- ✔ `/login`, `/signup`, `/auth/login`, `/auth/signup` endpoints  
-- ✔ `LoginRecord` DTO  
-- ✔ Header with role-aware rendering
-
----
-
-### 2. Student Module
-- Build Student CRUD service  
-- Add `StudentController` with REST + Thymeleaf endpoints  
-- Create Student Profile page (view/edit)  
-- Integrate student roles into authentication  
-- Validate uniqueness of `studentId` & `email`
-
-**Deliverables:**  
-- ✔ `/student/profile`  
-- ✔ `/student/profile/edit`  
-- ✔ Student forms + validation
-
----
-
-### 3. Professor Module
-- Create professor management UI  
-- Enable CRUD operations via `/professors`  
-- Ensure UI prevents students from accessing professor pages  
-
-**Deliverables:**  
-- ✔ Professor list page  
-- ✔ Add/Edit/Delete forms  
-- ✔ Role-based UI access checks
-
----
-
-### 4. Project Module
-- Build project creation/editing UI  
-- Add filtering by program or status  
-- Integrate project restrictions (program eligibility)  
-- Surface professor assignment & capacity rules  
-
-**Deliverables:**  
-- ✔ `/projects` dashboard (Thymeleaf)  
-- ✔ Project create/edit forms  
-- ✔ Program selection & restriction filters
-
----
-
-### 5. Allocation Module
-- Implement `AllocationService` for:  
-  - Assigning professor to project  
-  - Assigning student to project  
-  - Capacity checks  
-  - Program compatibility  
-- Add integration tests for allocation flows  
-
-**Deliverables:**  
-- ✔ Full allocation workflow  
-- ✔ Unit + integration tests  
-- ✔ Controller + UI hooks (optional)
-
----
-
-### 6. Architecture & Module Structure
-- Apply Spring Modulith conventions  
-- Separate code into modules:  
-  `auth`, `student`, `professor`, `project`, `allocation`, `ui`  
-- Create clear domain boundaries
-
-**Deliverables:**  
-- ✔ Updated package layout  
-- ✔ Module diagram  
-- ✔ Clean separation between modules
-
----
-
-## 📦 Overall Sprint Deliverables
-- Full authentication + registration (student & professor)  
-- Student profile management UI  
-- Professor directory and management tools  
-- Project management + filtering UI  
-- Fully implemented allocation logic (tested)  
-- Modulith-style architecture  
-- Working end-to-end prototype
-
-## UML Diagrams (Updated for Milestone 2
+## UML Diagrams 
 
 #### Module Diagram
 <img width="478" height="683" alt="ModulesDiagram" src="https://github.com/user-attachments/assets/e14b0a7e-4347-4501-a9ea-8d088d4f9edc" />
 
 #### Database Schema Diagram
-<img width="721" height="775" alt="DBDiagram" src="https://github.com/user-attachments/assets/0456d845-7ea1-45aa-b27c-3124c53d9832" />
+
 
 #### Class UML Diagrams
-<img width="1583" height="671" alt="project_class_diagram" src="https://github.com/user-attachments/assets/003ee62f-9e8e-49f8-808c-762c54600f74" />
-<img width="1634" height="614" alt="student_class_diagram" src="https://github.com/user-attachments/assets/73277c3e-f5dd-43bd-ab8f-c3dabb6bc44f" />
-<img width="1872" height="744" alt="allocation_class_diagram" src="https://github.com/user-attachments/assets/ebde894d-c885-41ff-a569-4e3ead28c2bd" />
-<img width="774" height="561" alt="professor_class_diagram" src="https://github.com/user-attachments/assets/0a767a24-c82b-4118-be58-0b3fd4c77baa" />
-<img width="837" height="442" alt="auth_class_diagram" src="https://github.com/user-attachments/assets/a0c3cb79-e2a9-4627-beb1-ef71cc732e0e" />
-<img width="4096" height="1249" alt="ui_class_diagram" src="https://github.com/user-attachments/assets/f02a052e-137b-482b-93a7-9d243c7f289f" />
+<img width="1872" height="744" alt="image" src="https://github.com/user-attachments/assets/3385742d-921d-4441-99d9-0bef3605dc01" />
+<img width="774" height="561" alt="image" src="https://github.com/user-attachments/assets/804e9566-a1a8-4f1f-ab3f-5a2ec1b8a7e3" />
+<img width="1583" height="671" alt="image" src="https://github.com/user-attachments/assets/fc95f779-9f8f-443a-951d-b765a4263cd9" />
+<img width="1634" height="614" alt="image" src="https://github.com/user-attachments/assets/1b3aa394-74d5-41f6-b19d-765470de9203" />
+<img width="4096" height="1249" alt="image" src="https://github.com/user-attachments/assets/96c1159c-ae56-49b0-ab5f-b4ee107cc39d" />
 
 
 ## Technology Stack
@@ -206,9 +127,9 @@ This project uses a GitHub Projects Kanban workflow to track tasks across the sp
 Below is the snapshot of our board at the end of Milestone 2:
 <img width="1910" height="863" alt="KanbanSS" src="https://github.com/user-attachments/assets/002cd4da-5b3d-4826-9938-5274f7b695d6" />
 
-## 📌 Kanban Board Snapshot (Milestone 3) - Plan for the next sprint
+## 📌 Kanban Board Snapshot (Milestone 3) 
 Below is the snapshot of our board for our plan for Milestone 3:
-<img width="959" height="410" alt="image" src="https://github.com/user-attachments/assets/3d406bb0-0915-4921-94f1-2800d0537e71" />
+<img width="1803" height="719" alt="image" src="https://github.com/user-attachments/assets/659353e4-4c17-4201-a9a9-210aab63ce65" />
 
 
 ## Contributors
