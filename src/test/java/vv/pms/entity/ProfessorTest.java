@@ -1,4 +1,4 @@
-package vv.pms;
+package vv.pms.entity;
 
 import org.junit.jupiter.api.Test;
 import vv.pms.professor.Professor;
