@@ -75,10 +75,15 @@ public class ProjectUI {
     ) {}
 
     @GetMapping
-    public String listProjects(Model model,
+    public String listProjects(HttpSession session,
+                               Model model,
                                @RequestParam(required = false) String program,
                                @RequestParam(required = false) String status,
                                Pageable pageable) {
+
+        // Header Fix
+        model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
+        model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
 
         Page<Project> projectsPage = projectService.findProjects(program, status, pageable);
 
@@ -111,20 +116,23 @@ public class ProjectUI {
             );
         });
 
-        model.addAttribute("projectsPage", summaryPage); // Pass the Page
-        model.addAttribute("programs", Program.values()); // For the filter
-        model.addAttribute("statuses", ProjectStatus.values()); // For the filter
+        model.addAttribute("projectsPage", summaryPage);
+        model.addAttribute("programs", Program.values());
+        model.addAttribute("statuses", ProjectStatus.values());
         model.addAttribute("selectedProgram", program);
         model.addAttribute("selectedStatus", status);
 
         model.addAttribute("projectForm", new ProjectForm());
 
-        return "projects"; //
+        return "projects";
     }
 
 
     @GetMapping("/details/{id}")
     public String projectDetails(@PathVariable Long id, Model model, HttpSession session) {
+
+        model.addAttribute("currentUserName", session.getAttribute("currentUserName"));
+        model.addAttribute("currentUserRole", session.getAttribute("currentUserRole"));
 
         // Get the Project
         Project project = projectService.findProjectById(id)
