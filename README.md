@@ -30,11 +30,15 @@ A web-based system designed to manage 4th-year project topics, student applicati
 #### Database Schema Diagram
 
 #### Class UML Diagrams
-<img width="1872" height="744" alt="image" src="https://github.com/user-attachments/assets/3385742d-921d-4441-99d9-0bef3605dc01" />
-<img width="774" height="561" alt="image" src="https://github.com/user-attachments/assets/804e9566-a1a8-4f1f-ab3f-5a2ec1b8a7e3" />
-<img width="1583" height="671" alt="image" src="https://github.com/user-attachments/assets/fc95f779-9f8f-443a-951d-b765a4263cd9" />
-<img width="1634" height="614" alt="image" src="https://github.com/user-attachments/assets/1b3aa394-74d5-41f6-b19d-765470de9203" />
-<img width="4096" height="1249" alt="image" src="https://github.com/user-attachments/assets/96c1159c-ae56-49b0-ab5f-b4ee107cc39d" />
+<img width="1634" height="614" alt="student_class_diagram" src="https://github.com/user-attachments/assets/4f8fbfbc-5fec-4a24-a359-bef9507dbc8d" />
+<img width="1840" height="707" alt="project_class_diagram" src="https://github.com/user-attachments/assets/3fd6fd29-9b56-4856-a759-c066660490d4" />
+<img width="774" height="561" alt="professor_class_diagram" src="https://github.com/user-attachments/assets/9bf8fceb-6340-4983-891a-024d47344f1f" />
+<img width="2021" height="885" alt="presentation_class_diagram" src="https://github.com/user-attachments/assets/70b60a77-1dc1-4545-a8e1-358f52db4973" />
+<img width="812" height="544" alt="coordinator_class_diagram" src="https://github.com/user-attachments/assets/1acda742-b36a-45ad-9a35-0354b7b76178" />
+<img width="1497" height="508" alt="availablility_class_diagram" src="https://github.com/user-attachments/assets/4327dac5-3911-4a35-9bcb-34eaae07ae7b" />
+<img width="781" height="442" alt="auth_class_diagram" src="https://github.com/user-attachments/assets/df6d53a8-608c-42f9-a33d-defcfd958cf6" />
+<img width="1872" height="849" alt="allocation_class_diagram" src="https://github.com/user-attachments/assets/aa19c59e-b14b-466f-846a-96248b8df925" />
+
 
 ## Technology Stack
 	@@ -206,9 +127,9 @@ This project uses a GitHub Projects Kanban workflow to track tasks across the sp
